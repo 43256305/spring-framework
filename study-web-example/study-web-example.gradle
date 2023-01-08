@@ -1,0 +1,16 @@
+plugins {
+    id 'java'
+    id 'war' //需要加上这个插件，此项目才会被识别为web项目
+}
+
+group 'com.example.study'
+version '5.2.4.RELEASE'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(":spring-webmvc"))
+    compile(project(":spring-web"))
+}

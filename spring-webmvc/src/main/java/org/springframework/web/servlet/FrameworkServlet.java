@@ -527,6 +527,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		long startTime = System.currentTimeMillis();
 
 		try {
+			//xjh-DispatcherServlet初始化：初始化WebApplicationContext
 			this.webApplicationContext = initWebApplicationContext();
 			initFrameworkServlet();
 		}
@@ -649,6 +650,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	 * @see org.springframework.web.context.support.XmlWebApplicationContext
 	 */
 	protected WebApplicationContext createWebApplicationContext(@Nullable ApplicationContext parent) {
+		//xjh-DispatcherServlet初始化：contextClass默认为XmlWebApplicationContext，也可以自己实现，通过DispatcherServlet的init-param指定，查看上文注释
 		Class<?> contextClass = getContextClass();
 		if (!ConfigurableWebApplicationContext.class.isAssignableFrom(contextClass)) {
 			throw new ApplicationContextException(
@@ -661,10 +663,12 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 
 		wac.setEnvironment(getEnvironment());
 		wac.setParent(parent);
+		//xjh-DispatcherServlet初始化：configLocation此值为我们在web.xml中配置的/WEB-INF/spring.xml，在下面的refresh中将会解析此文件，并根据配置初始化bean
 		String configLocation = getContextConfigLocation();
 		if (configLocation != null) {
 			wac.setConfigLocation(configLocation);
 		}
+		//xjh-DispatcherServlet初始化：refresh，即初始化此容器中的bean，我们的TestController就是在这里被初始化的，具体查看wac.beanFactory.singletonObjects
 		configureAndRefreshWebApplicationContext(wac);
 
 		return wac;

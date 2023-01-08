@@ -167,6 +167,7 @@ public abstract class HttpServletBean extends HttpServlet implements Environment
 		}
 
 		// Let subclasses do whatever initialization they like.
+		//xjh-DispatcherServlet初始化：FrameworkServlet实现了此方法，初始化了WebApplicationContext
 		initServletBean();
 	}
 

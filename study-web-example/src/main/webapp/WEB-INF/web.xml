@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
 
-<!--	<listener>-->
-<!--		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
-<!--	</listener>-->
-
-<!--	<context-param>-->
-<!--		<param-name>contextConfigLocation</param-name>-->
-<!--		<param-value>/WEB-INF/app-context.xml</param-value>-->
-<!--	</context-param>-->
-
 	<servlet>
 		<servlet-name>app</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
@@ -30,7 +21,11 @@
 		<url-pattern>/app/*</url-pattern>
 	</servlet-mapping>
 <!--
-web.xml此文件并不是由springmvc去使用的，而是由tomcat读取并使用，而tomcat规定此文件只能在webapp/WEB-INF目录下
+Tomcat启动：
+web.xml此文件并不是由springmvc去使用的，而是由tomcat读取并使用，而tomcat规定此文件只能在webapp/WEB-INF目录下。
+tomcat解析web.xml文件时，首先会读取文件中的<listener>标签，并且创建定义的Listener（如下面的ContextLoaderListener），其次才会解析<servlet>标签
+
+DispatcherServlet初始化:
 tomcat启动时将会读取此文件中的<servlet>标签，并根据<load-on-startup>标签来决定什么时候初始化DispatcherServlet，如果为1，则tomcat启动时即会初始化DispatcherServlet，如果为0则等到用户访问<servlet-mapping>中的url时才会初始化DispatcherServlet。
 访问web应用时，需要加上idea tomcat中配置的Application Context的路径，因为tomcat中可以部署很多应用，所以必须要指定此应用的context。之后，我们还需要指定此DispatcherServlet的mapping，即我们上面<servlet-mapping>标签中定义的url，即'/app/*'，这样，tomcat才会把请求交给此DispatcherServlet来处理。之后DispatcherServlet才会处理我们定义的Controller中的mapping，并返回相应的结果。
 
@@ -42,6 +37,41 @@ DispatcherServlet初始化：DispatcherServlet.init()->创建Spring容器->initS
                                                                                   RequestMappingHandlerAdapter..afterPropertiesSet()->记录下其中注解了@ControllerAdvice的bean，并记录其中注释了@ModelAttribute、@InitBinder等的方法
 
 
+-->
+<!--	这里我们另外创建了一个DispatcherServlet，此DispatcherServlet与上面的DispatcherServlet在同一个tomcat容器下，这两个DispatcherServlet分别拥有不同的wac容器-->
+	<servlet>
+		<servlet-name>app1</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<!--			配置指定的spring.xml-->
+			<param-value>/WEB-INF/spring.xml</param-value>
+			<!--			不使用默认的XmlWebApplicationContext，而是用我们自己定义的context-->
+			<!--			<param-name>contextClass</param-name>-->
+			<!--			<param-value>com.xxx.xxxContext</param-value>-->
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<!--	上面配置的DispatcherServlet的mapping	-->
+		<servlet-name>app1</servlet-name>
+		<url-pattern>/app1/*</url-pattern>
+	</servlet-mapping>
+
+<!--	此listener其实就是配置了一个父容器，此父容器为上面定义的两个DispatcherServlet的父容器，父容器的bean从下面定义的/WEB-INF/spring-parent.xml中取，父容器的bean被他的子容器所共享-->
+<!--	<listener>-->
+<!--		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
+<!--	</listener>-->
+
+<!--	<context-param>-->
+<!--		<param-name>contextConfigLocation</param-name>-->
+<!--		<param-value>/WEB-INF/spring-parent.xml</param-value>-->
+<!--	</context-param>-->
+
+<!--
+父子容器：
+Tomcat创建ContextLoaderListener时，首先会调用ContextLoaderListener.contextInitialized()方法，此方法创建了一个WebApplicationContext容器，容器创建完成后会将此容器放入到servletContext中，随后在创建DispatcherServlet中的容器时，将会把父容器设置为此子容器的父容器。
+父容器用于多个DispatcherServlet中的容器共享bean，一般来说，我们并不需要父容器，所以<listener>与<context-param>标签可以去除
 -->
 
 </web-app>

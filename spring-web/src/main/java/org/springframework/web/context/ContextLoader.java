@@ -289,9 +289,11 @@ public class ContextLoader {
 						ApplicationContext parent = loadParentContext(servletContext);
 						cwac.setParent(parent);
 					}
+					//xjh-父子容器：refresh父容器
 					configureAndRefreshWebApplicationContext(cwac, servletContext);
 				}
 			}
+			//xjh-父子容器：父容器创建完成后，将容器放置到servletContext中
 			servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, this.context);
 
 			ClassLoader ccl = Thread.currentThread().getContextClassLoader();
@@ -357,6 +359,7 @@ public class ContextLoader {
 			}
 		}
 		else {
+			//xjh-父子容器：此处默认使用的容器类型仍然为ContextLoader.properties中配置的XmlWebApplicationContext
 			contextClassName = defaultStrategies.getProperty(WebApplicationContext.class.getName());
 			try {
 				return ClassUtils.forName(contextClassName, ContextLoader.class.getClassLoader());
@@ -384,6 +387,7 @@ public class ContextLoader {
 		}
 
 		wac.setServletContext(sc);
+		//xjh-父子容器：获得web.xml中配置的contextConfigLocation路径，根据此路径去加载bean
 		String configLocationParam = sc.getInitParameter(CONFIG_LOCATION_PARAM);
 		if (configLocationParam != null) {
 			wac.setConfigLocation(configLocationParam);

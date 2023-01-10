@@ -13,4 +13,5 @@ repositories {
 dependencies {
     compile(project(":spring-webmvc"))
     compile(project(":spring-web"))
+    compile("javax.servlet:javax.servlet-api:3.1.0")
 }

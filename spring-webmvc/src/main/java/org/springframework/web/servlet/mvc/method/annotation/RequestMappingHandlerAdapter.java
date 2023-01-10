@@ -577,6 +577,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			return;
 		}
 
+		//xjh-DispatcherServlet初始化：找出所有加了@ControllerAdvice的bean
 		List<ControllerAdviceBean> adviceBeans = ControllerAdviceBean.findAnnotatedBeans(getApplicationContext());
 
 		List<Object> requestResponseBodyAdviceBeans = new ArrayList<>();
@@ -586,14 +587,17 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 			if (beanType == null) {
 				throw new IllegalStateException("Unresolvable type for ControllerAdviceBean: " + adviceBean);
 			}
+			//xjh-DispatcherServlet初始化：找出bean中注解了@RequestMapping与@ModelAttribute的方法并放置在cache中
 			Set<Method> attrMethods = MethodIntrospector.selectMethods(beanType, MODEL_ATTRIBUTE_METHODS);
 			if (!attrMethods.isEmpty()) {
 				this.modelAttributeAdviceCache.put(adviceBean, attrMethods);
 			}
+			//xjh-DispatcherServlet初始化：找出bean中注解了@InitBinder的方法并放置在cache中
 			Set<Method> binderMethods = MethodIntrospector.selectMethods(beanType, INIT_BINDER_METHODS);
 			if (!binderMethods.isEmpty()) {
 				this.initBinderAdviceCache.put(adviceBean, binderMethods);
 			}
+			//xjh-DispatcherServlet初始化：查看bean是否实现了RequestBodyAdvice与ResponseBodyAdvice接口
 			if (RequestBodyAdvice.class.isAssignableFrom(beanType) || ResponseBodyAdvice.class.isAssignableFrom(beanType)) {
 				requestResponseBodyAdviceBeans.add(adviceBean);
 			}

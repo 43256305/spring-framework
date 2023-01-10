@@ -500,6 +500,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * <p>May be overridden in subclasses in order to initialize further strategy objects.
 	 */
 	protected void initStrategies(ApplicationContext context) {
+		//xjh-DispatcherServlet初始化：容器refresh完成之后将会发布ContextRefreshedEvent事件，监听器将会执行此方法。主要用于初始化HandlerMapping、LocaleResolver等等。
 		initMultipartResolver(context);
 		initLocaleResolver(context);
 		initThemeResolver(context);
@@ -593,6 +594,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	private void initHandlerMappings(ApplicationContext context) {
 		this.handlerMappings = null;
 
+		//xjh-DispatcherServlet初始化：根据detectAllHandlerMappings配置（默认为true），判断是否获取所有的HandlerMapping bean或者指定的HandlerMapping bean
 		if (this.detectAllHandlerMappings) {
 			// Find all HandlerMappings in the ApplicationContext, including ancestor contexts.
 			Map<String, HandlerMapping> matchingBeans =
@@ -613,6 +615,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		//如果handlerMappings最后还是为空（默认会走到这里），则使用getDefaultStrategies(context, HandlerMapping.class)方法获取DispatcherServlet.properties文件中默认的HandlerMapping bean。
 		// Ensure we have at least one HandlerMapping, by registering
 		// a default HandlerMapping if no other mappings are found.
 		if (this.handlerMappings == null) {
@@ -848,6 +851,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	}
 
 	/**
+	 * xjh-DispatcherServlet初始化：获取DispatcherServlet.properties文件中默认的HandlerMapping、ThemeResolver、ViewResolver等等。
 	 * Create a List of default strategy objects for the given strategy interface.
 	 * <p>The default implementation uses the "DispatcherServlet.properties" file (in the same
 	 * package as the DispatcherServlet class) to determine the class names. It instantiates
@@ -866,6 +870,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			for (String className : classNames) {
 				try {
 					Class<?> clazz = ClassUtils.forName(className, DispatcherServlet.class.getClassLoader());
+					//xjh-DispatcherServlet初始化：创建DispatcherServlet.properties中定义的各种策略并且放到容器中，调用afterPropertiesSet（重点）等bean生命周期方法。
 					Object strategy = createDefaultStrategy(context, clazz);
 					strategies.add((T) strategy);
 				}

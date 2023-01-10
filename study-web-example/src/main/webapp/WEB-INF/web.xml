@@ -37,6 +37,11 @@ tomcat启动时将会读取此文件中的<servlet>标签，并根据<load-on-st
 初始化DispatcherServlet时，将会调用此类的init()，即HttpServletBean.init()，此初始化方法初始化了WebApplicationContext容器（默认为XmlWebApplicationContext实现类），即我们初始化的DispatcherServlet内部含有一个WebApplicationContext容器，此容器中包含了我们定义的Controller等等一些bean。HttpServletBean此类属于springmvc，而此类的父类HttpServlet及以上，则属于javax，即tomcat。
 WebApplicationContext初始化调用链：HttpServletBean.init()->FrameworkServlet.initServletBean()->FrameworkServlet.createWebApplicationContext(parent)
 
- -->
+DispatcherServlet初始化：DispatcherServlet.init()->创建Spring容器->initStrategies()->RequestMappingHandlerMapping.afterPropertiesSet()->mappingRegistry注册(url,Method)
+                                                                                  BeanNameUrlHandlerMapping.initApplicationContext()->detectHandlers()注册(beanNameUrl,bean)，beanName需要以/开头，bean需要实现Controller或者HttpRequestHandler接口
+                                                                                  RequestMappingHandlerAdapter..afterPropertiesSet()->记录下其中注解了@ControllerAdvice的bean，并记录其中注释了@ModelAttribute、@InitBinder等的方法
+
+
+-->
 
 </web-app>

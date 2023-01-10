@@ -214,6 +214,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	protected void initHandlerMethods() {
 		for (String beanName : getCandidateBeanNames()) {
 			if (!beanName.startsWith(SCOPED_TARGET_NAME_PREFIX)) {
+				//xjh-DispatcherServlet初始化：获取所有bean并且调用如下方法
 				processCandidateBean(beanName);
 			}
 		}
@@ -254,13 +255,14 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 				logger.trace("Could not resolve type for bean '" + beanName + "'", ex);
 			}
 		}
+		//xjh-DispatcherServlet初始化：isHandler方法判断所给的类型是否拥有@Controller注解或者@RequestMapping注解(@RestController注解只是@Controller与@ResponseBody的结合，所以也能检测到)。
 		if (beanType != null && isHandler(beanType)) {
 			detectHandlerMethods(beanName);
 		}
 	}
 
 	/**
-	 * Look for handler methods in the specified handler bean.
+	 * xjh-DispatcherServlet初始化：Look for handler methods in the specified handler bean.
 	 * @param handler either a bean name or an actual handler instance
 	 * @see #getMappingForMethod
 	 */
@@ -270,6 +272,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 
 		if (handlerType != null) {
 			Class<?> userType = ClassUtils.getUserClass(handlerType);
+			//xjh-DispatcherServlet初始化：创建<Method,RequestMappingInfo>的map，RequestMappingInfo包含@RequestMapping中配置的一些属性
 			Map<Method, T> methods = MethodIntrospector.selectMethods(userType,
 					(MethodIntrospector.MetadataLookup<T>) method -> {
 						try {
@@ -283,6 +286,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 			if (logger.isTraceEnabled()) {
 				logger.trace(formatMappings(userType, methods));
 			}
+			//xjh-DispatcherServlet初始化：找到所有的@RequestMapping方法后，将此方法注册到mappingRegistry，方便后面根据url查找具体的方法
 			methods.forEach((method, mapping) -> {
 				Method invocableMethod = AopUtils.selectInvocableMethod(method, userType);
 				registerHandlerMethod(handler, invocableMethod, mapping);

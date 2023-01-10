@@ -68,6 +68,7 @@ public abstract class AbstractDetectingUrlHandlerMapping extends AbstractUrlHand
 	 * @see #determineUrlsForHandler(String)
 	 */
 	protected void detectHandlers() throws BeansException {
+		//xjh-DispatcherServlet初始化：BeanNameUrlHandlerMapping策略注册Handler：先获取所有的bean，在根据bean的名字中是否以/开头来将beanName当做url，将次bean当做value注册进入map中。此bean要实现Controller或者HttpRequestHandler接口，当接口来时如果匹配，则会调用此bean的handleRequest方法。
 		ApplicationContext applicationContext = obtainApplicationContext();
 		String[] beanNames = (this.detectHandlersInAncestorContexts ?
 				BeanFactoryUtils.beanNamesForTypeIncludingAncestors(applicationContext, Object.class) :

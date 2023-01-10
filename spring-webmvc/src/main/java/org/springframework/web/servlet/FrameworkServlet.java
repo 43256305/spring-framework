@@ -691,6 +691,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		wac.setServletContext(getServletContext());
 		wac.setServletConfig(getServletConfig());
 		wac.setNamespace(getNamespace());
+		//xjh-DispatcherServlet初始化：添加监听器 委托设计模式 委托给ContextRefreshListener监听器 当容器完成refresh后将会发布一个ContextRefreshedEvent事件，此Listener中的onApplicationEvent将会执行
 		wac.addApplicationListener(new SourceFilteringListener(wac, new ContextRefreshListener()));
 
 		// The wac environment's #initPropertySources will be called in any case when the context

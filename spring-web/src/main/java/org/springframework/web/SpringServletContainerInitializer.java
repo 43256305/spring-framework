@@ -109,6 +109,7 @@ import org.springframework.util.ReflectionUtils;
  * @see #onStartup(Set, ServletContext)
  * @see WebApplicationInitializer
  */
+//xjh-零配置：@HandlesTypes使用此注解后，tomcat将会扫描classpath下的所有WebApplicationInitializer实现类（即我们定义的MyWebApplicationInitializer），并将实现类全部传入SpringServletContainerInitializer.onStartup()方法
 @HandlesTypes(WebApplicationInitializer.class)
 public class SpringServletContainerInitializer implements ServletContainerInitializer {
 
@@ -141,7 +142,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 	@Override
 	public void onStartup(@Nullable Set<Class<?>> webAppInitializerClasses, ServletContext servletContext)
 			throws ServletException {
-
+		//xjh-零配置：webAppInitializerClasses此set中为classpath下所有WebApplicationInitializer的实现类
 		List<WebApplicationInitializer> initializers = new LinkedList<>();
 
 		if (webAppInitializerClasses != null) {
@@ -169,6 +170,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 		servletContext.log(initializers.size() + " Spring WebApplicationInitializers detected on classpath");
 		AnnotationAwareOrderComparator.sort(initializers);
 		for (WebApplicationInitializer initializer : initializers) {
+			//xjh-零配置：此方法调用了我们定义的MyWebApplicationInitializer类（与其他所有的WebApplicationInitializer实现类）中的onStartup方法，而此类的onStartup方法被tomcat所调用。
 			initializer.onStartup(servletContext);
 		}
 	}

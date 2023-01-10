@@ -1,1 +1,2 @@
+#xjh-零配置：这里定义了ServletContainerInitializer的实现类，tomcat在启动时会调用SpringServletContainerInitializer.onStartup()方法
 org.springframework.web.SpringServletContainerInitializer

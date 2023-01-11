@@ -78,5 +78,7 @@ Tomcat创建ContextLoaderListener时，首先会调用ContextLoaderListener.cont
 <!--
 请求处理流程：
 DispatcherServlet接受请求(path、parameter、header、body等)->根据url选择处理的Method->解析参数、参数绑定->执行业务方法->返回值解析
+拦截器处理时机：preHandle->返回false则afterCompletion
+	                   ->返回true则执行业务方法->postHandle->视图渲染->afterCompletion
 -->
 </web-app>

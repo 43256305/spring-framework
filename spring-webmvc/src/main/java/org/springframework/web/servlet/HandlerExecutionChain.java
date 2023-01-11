@@ -138,7 +138,9 @@ public class HandlerExecutionChain {
 		if (!ObjectUtils.isEmpty(interceptors)) {
 			for (int i = 0; i < interceptors.length; i++) {
 				HandlerInterceptor interceptor = interceptors[i];
+				//执行每个拦截器的preHandle方法，一旦某个拦截器返回false，则不会执行后续的拦截器，并且将返回false
 				if (!interceptor.preHandle(request, response, this.handler)) {
+					//如果拦截器返回false退出了，则并不会执行后续的业务方法，而是直接执行拦截器的afterCompletion方法
 					triggerAfterCompletion(request, response, null);
 					return false;
 				}
@@ -176,6 +178,7 @@ public class HandlerExecutionChain {
 			for (int i = this.interceptorIndex; i >= 0; i--) {
 				HandlerInterceptor interceptor = interceptors[i];
 				try {
+					//调用每个拦截器的afterCompletion方法
 					interceptor.afterCompletion(request, response, this.handler, ex);
 				}
 				catch (Throwable ex2) {

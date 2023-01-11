@@ -392,7 +392,7 @@ public abstract class AbstractHandlerMapping extends WebApplicationObjectSupport
 	@Override
 	@Nullable
 	public final HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
-		//xjh-请求处理流程：这里会获取到处理此request的Method
+		//xjh-请求处理流程：这里会获取到处理此request的Method，根据@RequestMapping注册的返回的是一个HandlerMethod，根据beanName注册的返回的是一个Handler（即Bean）
 		Object handler = getHandlerInternal(request);
 		if (handler == null) {
 			handler = getDefaultHandler();

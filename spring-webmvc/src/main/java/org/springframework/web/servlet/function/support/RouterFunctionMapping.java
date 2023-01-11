@@ -130,6 +130,7 @@ public class RouterFunctionMapping extends AbstractHandlerMapping implements Ini
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void initRouterFunction() {
 		ApplicationContext applicationContext = obtainApplicationContext();
+		//xjh-DispatcherServlet初始化：获取所有实现了RouterFunction的bean
 		Map<String, RouterFunction> beans =
 				(this.detectHandlerFunctionsInAncestorContexts ?
 						BeanFactoryUtils.beansOfTypeIncludingAncestors(applicationContext, RouterFunction.class) :

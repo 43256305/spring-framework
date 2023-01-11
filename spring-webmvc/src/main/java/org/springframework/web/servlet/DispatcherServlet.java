@@ -1027,7 +1027,11 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				//xjh-请求处理流程：
+				//xjh-请求处理流程：根据handler/handlerMethod找到最匹配的HandlerAdapter
+				//如果为@Controller中的某个方法，则对应的为RequestMappingHandlerAdapter
+				//HttpRequestHandler实现类--》HttpRequestHandlerAdapter
+				//Controller接口实现类--》SimpleControllerHandlerAdapter
+				//HandlerFunction实现类--》HandlerFunctionAdapter
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
@@ -1045,6 +1049,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
+				//xjh-请求处理流程：调用业务处理流程
 				// Actually invoke the handler.
 				mv = ha.handle(processedRequest, response, mappedHandler.getHandler());
 
@@ -1276,6 +1281,7 @@ public class DispatcherServlet extends FrameworkServlet {
 	 * @throws ServletException if no HandlerAdapter can be found for the handler. This is a fatal error.
 	 */
 	protected HandlerAdapter getHandlerAdapter(Object handler) throws ServletException {
+		//xjh-请求处理流程：此handlerAdapters为DispatcherServlet.properties注册的4个HandlerAdapters
 		if (this.handlerAdapters != null) {
 			for (HandlerAdapter adapter : this.handlerAdapters) {
 				if (adapter.supports(handler)) {

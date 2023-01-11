@@ -42,6 +42,7 @@ public class HttpRequestHandlerAdapter implements HandlerAdapter {
 
 	@Override
 	public boolean supports(Object handler) {
+		//xjh-请求处理流程：只要此handler是HttpRequestHandler的实例则返回true
 		return (handler instanceof HttpRequestHandler);
 	}
 
@@ -49,7 +50,7 @@ public class HttpRequestHandlerAdapter implements HandlerAdapter {
 	@Nullable
 	public ModelAndView handle(HttpServletRequest request, HttpServletResponse response, Object handler)
 			throws Exception {
-
+		//xjh-请求处理流程：真正地调用业务处理流程
 		((HttpRequestHandler) handler).handleRequest(request, response);
 		return null;
 	}

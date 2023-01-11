@@ -32,10 +32,11 @@ tomcat启动时将会读取此文件中的<servlet>标签，并根据<load-on-st
 初始化DispatcherServlet时，将会调用此类的init()，即HttpServletBean.init()，此初始化方法初始化了WebApplicationContext容器（默认为XmlWebApplicationContext实现类），即我们初始化的DispatcherServlet内部含有一个WebApplicationContext容器，此容器中包含了我们定义的Controller等等一些bean。HttpServletBean此类属于springmvc，而此类的父类HttpServlet及以上，则属于javax，即tomcat。
 WebApplicationContext初始化调用链：HttpServletBean.init()->FrameworkServlet.initServletBean()->FrameworkServlet.createWebApplicationContext(parent)
 
-DispatcherServlet初始化：DispatcherServlet.init()->创建Spring容器->initStrategies()->RequestMappingHandlerMapping.afterPropertiesSet()->mappingRegistry注册(url,Method)
-                                                                                  BeanNameUrlHandlerMapping.initApplicationContext()->detectHandlers()注册(beanNameUrl,bean)，beanName需要以/开头，bean需要实现Controller或者HttpRequestHandler接口
+DispatcherServlet初始化：DispatcherServlet.init()->创建Spring容器->通过容器refresh完成事件调用DispatcherServlet.initStrategies()->RequestMappingHandlerMapping.afterPropertiesSet()->mappingRegistry注册(url,Method)
+                                                                                  BeanNameUrlHandlerMapping.initApplicationContext()->detectHandlers()方法注册(beanNameUrl,bean)到handlerMap中，beanName需要以/开头，bean需要实现Controller或者HttpRequestHandler接口
                                                                                   RequestMappingHandlerAdapter..afterPropertiesSet()->记录下其中注解了@ControllerAdvice的bean，并记录其中注释了@ModelAttribute、@InitBinder等的方法
-
+Handler：处理请求的方法
+HandlerMapping：处理请求的方法与url的映射
 
 -->
 <!--	这里我们另外创建了一个DispatcherServlet，此DispatcherServlet与上面的DispatcherServlet在同一个tomcat容器下，这两个DispatcherServlet分别拥有不同的wac容器-->
@@ -74,4 +75,8 @@ Tomcat创建ContextLoaderListener时，首先会调用ContextLoaderListener.cont
 父容器用于多个DispatcherServlet中的容器共享bean，一般来说，我们并不需要父容器，所以<listener>与<context-param>标签可以去除
 -->
 
+<!--
+请求处理流程：
+DispatcherServlet接受请求(path、parameter、header、body等)->根据url选择处理的Method->解析参数、参数绑定->执行业务方法->返回值解析
+-->
 </web-app>

@@ -360,6 +360,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	// Handler method lookup
 
 	/**
+	 * //xjh-请求处理流程：此方法能获取到RequestMappingHandlerMapping策略注册的handler
 	 * Look up a handler method for the given request.
 	 */
 	@Override
@@ -388,6 +389,7 @@ public abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMap
 	@Nullable
 	protected HandlerMethod lookupHandlerMethod(String lookupPath, HttpServletRequest request) throws Exception {
 		List<Match> matches = new ArrayList<>();
+		//xjh-请求处理流程：此mappingRegistry即为我们初始化RequestMappingHandlerMapping时初始化的mappingRegistry
 		List<T> directPathMatches = this.mappingRegistry.getMappingsByUrl(lookupPath);
 		if (directPathMatches != null) {
 			addMatchingMappings(directPathMatches, matches, request);

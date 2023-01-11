@@ -929,6 +929,7 @@ public class DispatcherServlet extends FrameworkServlet {
 			}
 		}
 
+		//xjh-请求处理流程：为request设置如ApplicationContext等属性
 		// Make framework objects available to handlers and view objects.
 		request.setAttribute(WEB_APPLICATION_CONTEXT_ATTRIBUTE, getWebApplicationContext());
 		request.setAttribute(LOCALE_RESOLVER_ATTRIBUTE, this.localeResolver);
@@ -945,6 +946,7 @@ public class DispatcherServlet extends FrameworkServlet {
 		}
 
 		try {
+			//xjh-请求处理流程：处理所有请求
 			doDispatch(request, response);
 		}
 		finally {
@@ -1019,11 +1021,13 @@ public class DispatcherServlet extends FrameworkServlet {
 
 				// Determine handler for the current request.
 				mappedHandler = getHandler(processedRequest);
+				//xjh-请求处理流程：如果mappedHandler为空，则报404错误
 				if (mappedHandler == null) {
 					noHandlerFound(processedRequest, response);
 					return;
 				}
 
+				//xjh-请求处理流程：
 				// Determine handler adapter for the current request.
 				HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
 
@@ -1234,8 +1238,10 @@ public class DispatcherServlet extends FrameworkServlet {
 	 */
 	@Nullable
 	protected HandlerExecutionChain getHandler(HttpServletRequest request) throws Exception {
+		//xjh-请求处理流程：此handlerMappings默认为DispatcherServlet.properties中配置的三个HandlerMapping
 		if (this.handlerMappings != null) {
 			for (HandlerMapping mapping : this.handlerMappings) {
+				//xjh-请求处理流程：获取HandlerMapping中具体的处理方法，获取到之后回立刻返回，所以当url相同时，优先会执行BeanNameUrlHandlerMapping注册的handler（BeanNameUrlHandlerMapping与RequestMappingHandlerMapping注册的handler在不同的map中，所以不会报url冲突）
 				HandlerExecutionChain handler = mapping.getHandler(request);
 				if (handler != null) {
 					return handler;

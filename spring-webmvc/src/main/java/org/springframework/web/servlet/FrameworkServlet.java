@@ -880,7 +880,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		//xjh-请求处理流程：请求进来时，所有的请求都会交给此类的processRequest()方法执行
 		HttpMethod httpMethod = HttpMethod.resolve(request.getMethod());
 		if (httpMethod == HttpMethod.PATCH || httpMethod == null) {
 			processRequest(request, response);
@@ -1009,6 +1009,7 @@ public abstract class FrameworkServlet extends HttpServletBean implements Applic
 		initContextHolders(request, localeContext, requestAttributes);
 
 		try {
+			//xjh-请求处理流程：所有请求都会交给DispatcherServlet.doService()执行
 			doService(request, response);
 		}
 		catch (ServletException | IOException ex) {

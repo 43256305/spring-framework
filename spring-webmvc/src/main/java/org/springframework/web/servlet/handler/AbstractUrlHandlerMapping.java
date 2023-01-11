@@ -113,6 +113,7 @@ public abstract class AbstractUrlHandlerMapping extends AbstractHandlerMapping i
 	}
 
 	/**
+	 * xjh-请求处理流程：此方法能获取到BeanNameUrlHandlerMapping策略注册的Handler
 	 * Look up a handler for the URL path of the given request.
 	 * @param request current HTTP request
 	 * @return the handler instance, or {@code null} if none found

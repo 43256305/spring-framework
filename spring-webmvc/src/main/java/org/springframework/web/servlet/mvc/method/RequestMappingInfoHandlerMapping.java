@@ -107,6 +107,7 @@ public abstract class RequestMappingInfoHandlerMapping extends AbstractHandlerMe
 	protected HandlerMethod getHandlerInternal(HttpServletRequest request) throws Exception {
 		request.removeAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
 		try {
+			//xjh-请求处理流程：RequestMappingHandlerMapping注册的handler会先到达这里，然后才会交给此类的父类AbstractHandlerMethodMapping执行
 			return super.getHandlerInternal(request);
 		}
 		finally {

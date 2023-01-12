@@ -865,10 +865,17 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				invocableMethod.setHandlerMethodReturnValueHandlers(this.returnValueHandlers);
 			}
 			invocableMethod.setDataBinderFactory(binderFactory);
+			//xjh-解析方法参数名字
 			invocableMethod.setParameterNameDiscoverer(this.parameterNameDiscoverer);
 
+			//每个HandlerMethod都对应一个mavContainer，每个mavContainer都包含一个ModelMap（作为参数传入后续的业务方法）和一个View（业务方法返回时解析view）
 			ModelAndViewContainer mavContainer = new ModelAndViewContainer();
+			//把inputFlashMap中的attr放置到model中
 			mavContainer.addAllAttributes(RequestContextUtils.getInputFlashMap(request));
+			//初始化mavContainer中的modelMap
+			//比如执行@ModelAttribute方法，将key与方法返回值放入model中
+			//注解了@SessionAttributes时，将session中的某些key放入到model中
+			//注意，并没有把request parameter等放入到model中
 			modelFactory.initModel(webRequest, mavContainer, invocableMethod);
 			mavContainer.setIgnoreDefaultModelOnRedirect(this.ignoreDefaultModelOnRedirect);
 
@@ -891,12 +898,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				});
 				invocableMethod = invocableMethod.wrapConcurrentResult(result);
 			}
-
+			//实际的调用业务方法，这里只传入了webRequest和mavContainer
 			invocableMethod.invokeAndHandle(webRequest, mavContainer);
 			if (asyncManager.isConcurrentHandlingStarted()) {
 				return null;
 			}
-
+			//对封装的mavContainer进行处理，主要是判断当前请求是否进行重定向，如果进行了重定向还会判断是否需要将FlashAttr封装到请求中
 			return getModelAndView(mavContainer, modelFactory, webRequest);
 		}
 		finally {

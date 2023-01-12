@@ -15,7 +15,7 @@ import java.util.Date;
  * @modified By：
  * @version:
  */
-@ControllerAdvice
+//@ControllerAdvice
 public class MyControllerAdvice {
 
 	@InitBinder

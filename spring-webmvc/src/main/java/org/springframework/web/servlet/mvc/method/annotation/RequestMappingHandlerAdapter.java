@@ -641,9 +641,11 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	private List<HandlerMethodArgumentResolver> getDefaultArgumentResolvers() {
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
 
+		//xjh-具体每个解析器支持的条件查看每个解析器的supportsParameter()方法
 		// Annotation-based argument resolution
 		//xjh-@RequestParam解析器
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
+		//xjh-@RequestParam注解没有指定参数name，且参数为Map类型
 		resolvers.add(new RequestParamMapMethodArgumentResolver());
 		//xjh-@PathVariable解析器
 		resolvers.add(new PathVariableMethodArgumentResolver());
@@ -677,7 +679,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		}
 
 		// Catch-all
+		//xjh-没有任何注解且为simple类型参数的参数解析器（其实就是@RequstParam的解析器，只是useDefaultResolution参数设置为true）
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), true));
+		//xjh-没有任何注解的且为nested类型参数的参数解析器
 		resolvers.add(new ServletModelAttributeMethodProcessor(true));
 
 		return resolvers;
@@ -724,8 +728,10 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		List<HandlerMethodReturnValueHandler> handlers = new ArrayList<>();
 
 		// Single-purpose return value types
+		//xjh-处理返回类型为ModelAndView
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
 		handlers.add(new ModelMethodProcessor());
+		//xjh-处理String类型的返回值
 		handlers.add(new ViewMethodReturnValueHandler());
 		handlers.add(new ResponseBodyEmitterReturnValueHandler(getMessageConverters(),
 				this.reactiveAdapterRegistry, this.taskExecutor, this.contentNegotiationManager));
@@ -739,11 +745,13 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 		// Annotation-based return value types
 		handlers.add(new ModelAttributeMethodProcessor(false));
+		//xjh-处理@ResponseBody注解的返回值
 		handlers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(),
 				this.contentNegotiationManager, this.requestResponseBodyAdvice));
 
 		// Multi-purpose return value types
 		handlers.add(new ViewNameMethodReturnValueHandler());
+		//xjh-处理Map类型的返回值
 		handlers.add(new MapMethodProcessor());
 
 		// Custom return value types

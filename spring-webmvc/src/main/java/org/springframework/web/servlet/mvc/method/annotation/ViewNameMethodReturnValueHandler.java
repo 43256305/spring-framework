@@ -79,8 +79,10 @@ public class ViewNameMethodReturnValueHandler implements HandlerMethodReturnValu
 			ModelAndViewContainer mavContainer, NativeWebRequest webRequest) throws Exception {
 
 		if (returnValue instanceof CharSequence) {
+			//xjh-直接将返回的String放入mavContainer中，页面解析是后面才做（Dispatcher中处理完请求后调用了processDispatchResult方法）
 			String viewName = returnValue.toString();
 			mavContainer.setViewName(viewName);
+			//xjh-如果以redirect:开头的String，则将mac的redirectModelScenario设置为true
 			if (isRedirectViewName(viewName)) {
 				mavContainer.setRedirectModelScenario(true);
 			}

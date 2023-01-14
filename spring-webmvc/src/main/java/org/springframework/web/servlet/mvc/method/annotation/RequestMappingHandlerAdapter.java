@@ -746,7 +746,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		//xjh-处理返回类型为ModelAndView
 		handlers.add(new ModelAndViewMethodReturnValueHandler());
 		handlers.add(new ModelMethodProcessor());
-		//xjh-处理String类型的返回值
+		//xjh-处理View类型的返回值
 		handlers.add(new ViewMethodReturnValueHandler());
 		handlers.add(new ResponseBodyEmitterReturnValueHandler(getMessageConverters(),
 				this.reactiveAdapterRegistry, this.taskExecutor, this.contentNegotiationManager));
@@ -765,6 +765,7 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 				this.contentNegotiationManager, this.requestResponseBodyAdvice));
 
 		// Multi-purpose return value types
+		//xjh-处理String类型的返回值，并将之翻译成view
 		handlers.add(new ViewNameMethodReturnValueHandler());
 		//xjh-处理Map类型的返回值
 		handlers.add(new MapMethodProcessor());

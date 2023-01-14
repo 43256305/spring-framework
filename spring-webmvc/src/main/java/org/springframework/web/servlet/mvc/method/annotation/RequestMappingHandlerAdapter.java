@@ -642,7 +642,9 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		List<HandlerMethodArgumentResolver> resolvers = new ArrayList<>();
 
 		//xjh-具体每个解析器支持的条件查看每个解析器的supportsParameter()方法
+
 		// Annotation-based argument resolution
+		//xjh-注解相关解析器
 		//xjh-@RequestParam解析器
 		resolvers.add(new RequestParamMethodArgumentResolver(getBeanFactory(), false));
 		//xjh-@RequestParam注解没有指定参数name，且参数为Map类型
@@ -653,21 +655,31 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 		resolvers.add(new MatrixVariableMethodArgumentResolver());
 		resolvers.add(new MatrixVariableMapMethodArgumentResolver());
 		resolvers.add(new ServletModelAttributeMethodProcessor(false));
+		//xjh-@RequestBody与@RequestBody解析器
 		resolvers.add(new RequestResponseBodyMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
+		//xjh-@RequestPart注解
 		resolvers.add(new RequestPartMethodArgumentResolver(getMessageConverters(), this.requestResponseBodyAdvice));
 		resolvers.add(new RequestHeaderMethodArgumentResolver(getBeanFactory()));
+		//xjh-@RequestHeader注解
 		resolvers.add(new RequestHeaderMapMethodArgumentResolver());
+		//xjh-@CookieValue注解
 		resolvers.add(new ServletCookieValueMethodArgumentResolver(getBeanFactory()));
+		//xjh-@Value注解
 		resolvers.add(new ExpressionValueMethodArgumentResolver(getBeanFactory()));
 		resolvers.add(new SessionAttributeMethodArgumentResolver());
+		//xjh-@RequestAttribute注解
 		resolvers.add(new RequestAttributeMethodArgumentResolver());
 
 		// Type-based argument resolution
+		//注解解析完后，参数还没有解析，则使用参数类型解析
+		//xjh-MultipartRequest、WebRequest、TimeZone等类型的参数
 		resolvers.add(new ServletRequestMethodArgumentResolver());
+		//xjh-ServletResponse类型的参数
 		resolvers.add(new ServletResponseMethodArgumentResolver());
 		resolvers.add(new HttpEntityMethodProcessor(getMessageConverters(), this.requestResponseBodyAdvice));
 		resolvers.add(new RedirectAttributesMethodArgumentResolver());
 		resolvers.add(new ModelMethodProcessor());
+		//xjh-Map类型的参数
 		resolvers.add(new MapMethodProcessor());
 		resolvers.add(new ErrorsMethodArgumentResolver());
 		resolvers.add(new SessionStatusMethodArgumentResolver());

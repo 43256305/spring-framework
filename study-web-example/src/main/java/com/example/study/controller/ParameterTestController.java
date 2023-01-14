@@ -27,4 +27,14 @@ public class ParameterTestController {
 		return user.toString();
 	}
 
+	@GetMapping("/nestedResponse")
+	public User testNestedResponse(){
+		User user = new User();
+		user.setId("id");
+		user.setName("name");
+		return user;
+	}
+
+
+
 }

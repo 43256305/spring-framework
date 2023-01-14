@@ -118,7 +118,9 @@ public class StringHttpMessageConverter extends AbstractHttpMessageConverter<Str
 		if (this.writeAcceptCharset && headers.get(HttpHeaders.ACCEPT_CHARSET) == null) {
 			headers.setAcceptCharset(getAcceptedCharsets());
 		}
+		//xjh-写入的字符集
 		Charset charset = getContentTypeCharset(headers.getContentType());
+		//xjh-将str编码写入outputMessage的body
 		StreamUtils.copy(str, charset, outputMessage.getBody());
 	}
 

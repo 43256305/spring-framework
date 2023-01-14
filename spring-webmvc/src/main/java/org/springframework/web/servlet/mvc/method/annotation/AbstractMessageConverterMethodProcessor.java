@@ -223,13 +223,16 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 		else {
 			HttpServletRequest request = inputMessage.getServletRequest();
+			//xjh-获取请求中的accept字段
 			List<MediaType> acceptableTypes = getAcceptableMediaTypes(request);
+			//xjh-获取可以produce的类型
 			List<MediaType> producibleTypes = getProducibleMediaTypes(request, valueType, targetType);
 
 			if (body != null && producibleTypes.isEmpty()) {
 				throw new HttpMessageNotWritableException(
 						"No converter found for return value of type: " + valueType);
 			}
+			//xjh-判断requestMediaType与produceMediaType是否支持，默认请求下都支持，所以mediaTypesToUse就是produceMediaType
 			List<MediaType> mediaTypesToUse = new ArrayList<>();
 			for (MediaType requestedType : acceptableTypes) {
 				for (MediaType producibleType : producibleTypes) {
@@ -250,6 +253,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 			MediaType.sortBySpecificityAndQuality(mediaTypesToUse);
 
+			//xjh-选择第一个concrete的mediaType
 			for (MediaType mediaType : mediaTypesToUse) {
 				if (mediaType.isConcrete()) {
 					selectedMediaType = mediaType;
@@ -269,12 +273,14 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 
 		if (selectedMediaType != null) {
 			selectedMediaType = selectedMediaType.removeQualityValue();
+			//xjh-找出canWrite的converter
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
 				GenericHttpMessageConverter genericConverter = (converter instanceof GenericHttpMessageConverter ?
 						(GenericHttpMessageConverter<?>) converter : null);
 				if (genericConverter != null ?
 						((GenericHttpMessageConverter) converter).canWrite(targetType, valueType, selectedMediaType) :
 						converter.canWrite(valueType, selectedMediaType)) {
+					//xjh-切面处理（controller实现了ResponseBodyAdvice接口时可以对返回值做一些处理）
 					body = getAdvice().beforeBodyWrite(body, returnType, selectedMediaType,
 							(Class<? extends HttpMessageConverter<?>>) converter.getClass(),
 							inputMessage, outputMessage);
@@ -287,6 +293,7 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 							genericConverter.write(body, targetType, selectedMediaType, outputMessage);
 						}
 						else {
+							//xjh-converter将body写入outputMessage（json返回某个对象时需要加入jackson包，要不然会报错）
 							((HttpMessageConverter) converter).write(body, selectedMediaType, outputMessage);
 						}
 					}
@@ -373,9 +380,11 @@ public abstract class AbstractMessageConverterMethodProcessor extends AbstractMe
 		}
 		else if (!this.allSupportedMediaTypes.isEmpty()) {
 			List<MediaType> result = new ArrayList<>();
+			//xjh-messageConverters默认为RequestMappingHandlerAdapter构造器中初始化的四种converters
 			for (HttpMessageConverter<?> converter : this.messageConverters) {
 				if (converter instanceof GenericHttpMessageConverter && targetType != null) {
 					if (((GenericHttpMessageConverter<?>) converter).canWrite(targetType, valueClass, null)) {
+						//返回返回值类型对应的converter支持的mediaType
 						result.addAll(converter.getSupportedMediaTypes());
 					}
 				}

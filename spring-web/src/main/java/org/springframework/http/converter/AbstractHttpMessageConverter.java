@@ -224,6 +224,7 @@ public abstract class AbstractHttpMessageConverter<T> implements HttpMessageConv
 			}));
 		}
 		else {
+			//xjh-将返回数据写入outputMessage
 			writeInternal(t, outputMessage);
 			outputMessage.getBody().flush();
 		}

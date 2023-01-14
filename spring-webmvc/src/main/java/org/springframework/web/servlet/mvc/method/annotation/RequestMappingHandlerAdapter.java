@@ -194,9 +194,12 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 
 	public RequestMappingHandlerAdapter() {
 		this.messageConverters = new ArrayList<>(4);
+		//xjh-只支持byte[]类型的converter、mediaType为application/octet-stream或*/*
 		this.messageConverters.add(new ByteArrayHttpMessageConverter());
+		//xjh-支持String类型的converter、mediaType为text/plain或者*/*
 		this.messageConverters.add(new StringHttpMessageConverter());
 		try {
+			//xjh-DOMSource、Source等类型
 			this.messageConverters.add(new SourceHttpMessageConverter<>());
 		}
 		catch (Error err) {

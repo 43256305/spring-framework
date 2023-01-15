@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+}
+
+group 'com.example.study'
+version '5.2.4.RELEASE'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile(project(":spring-context"))
+}

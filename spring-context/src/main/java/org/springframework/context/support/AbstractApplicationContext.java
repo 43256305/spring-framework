@@ -234,7 +234,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * @param parent the parent context
 	 */
 	public AbstractApplicationContext(@Nullable ApplicationContext parent) {
+		//xjh-设置支持Ant风格的路径解析。
 		this();
+		//xjh-parent默认为null
 		setParent(parent);
 	}
 

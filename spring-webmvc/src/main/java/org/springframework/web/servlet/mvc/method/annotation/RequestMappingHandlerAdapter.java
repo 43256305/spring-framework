@@ -1038,11 +1038,14 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter
 	private ModelAndView getModelAndView(ModelAndViewContainer mavContainer,
 			ModelFactory modelFactory, NativeWebRequest webRequest) throws Exception {
 
+		//xjh-如果model中更新了@SessionAttributes注解的key，则需要对应地更新到session中
 		modelFactory.updateModel(webRequest, mavContainer);
+		//xjh-请求是否已经被完全处理了，如果是则直接返回（注解@ResponseBody时前面会将此值设置为true）
 		if (mavContainer.isRequestHandled()) {
 			return null;
 		}
 		ModelMap model = mavContainer.getModel();
+		//构造ModelAndView并返回，以便后面渲染view
 		ModelAndView mav = new ModelAndView(mavContainer.getViewName(), model, mavContainer.getStatus());
 		if (!mavContainer.isViewReference()) {
 			mav.setView((View) mavContainer.getView());

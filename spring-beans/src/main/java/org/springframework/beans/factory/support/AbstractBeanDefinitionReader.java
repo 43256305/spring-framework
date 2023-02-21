@@ -51,14 +51,17 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	/** Logger available to subclasses. */
 	protected final Log logger = LogFactory.getLog(getClass());
 
+	//xjh-此registry为我们创建的DefaultListableBeanFactory
 	private final BeanDefinitionRegistry registry;
 
+	//xjh-此resourceLoader为ClassPathXmlApplicationContext
 	@Nullable
 	private ResourceLoader resourceLoader;
 
 	@Nullable
 	private ClassLoader beanClassLoader;
 
+	//xjh-此environment为setConfigLocations时创建的StandardEnvironment
 	private Environment environment;
 
 	private BeanNameGenerator beanNameGenerator = DefaultBeanNameGenerator.INSTANCE;
@@ -90,6 +93,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			this.resourceLoader = (ResourceLoader) this.registry;
 		}
 		else {
+			//xjh-传入的DefaultListableBeanFactory并没有实现ResourceLoader接口，所有这里会创建一个全新的PathMatchingResourcePatternResolver（但是后面context会作为resourceLoader注入）
 			this.resourceLoader = new PathMatchingResourcePatternResolver();
 		}
 
@@ -98,6 +102,8 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			this.environment = ((EnvironmentCapable) this.registry).getEnvironment();
 		}
 		else {
+			//xjh-这里会创建一个StandardEnvironment（但是后面会将context中的Environment注入）
+			//所以，这里初始化的StandardEnvironment和PathMatchingResourcePatternResolver后面都没有用到
 			this.environment = new StandardEnvironment();
 		}
 	}
@@ -211,6 +217,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+		//xjh-这里获取的resourceLoader为ClassPathXmlApplicationContext，此context实现了ResourcePatternResolver接口
 		ResourceLoader resourceLoader = getResourceLoader();
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
@@ -221,6 +228,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			// Resource pattern matching available.
 			try {
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+				//xjh-加载
 				int count = loadBeanDefinitions(resources);
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);

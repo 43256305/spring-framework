@@ -125,10 +125,12 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		// the new (child) delegate with a reference to the parent for fallback purposes,
 		// then ultimately reset this.delegate back to its original (parent) reference.
 		// this behavior emulates a stack of delegates without actually necessitating one.
+		//xjh-加载db会交给BeanDefinitionParserDelegate去做
 		BeanDefinitionParserDelegate parent = this.delegate;
 		this.delegate = createDelegate(getReaderContext(), root, parent);
 
 		if (this.delegate.isDefaultNamespace(root)) {
+			//xjh-检查profile属性
 			String profileSpec = root.getAttribute(PROFILE_ATTRIBUTE);
 			if (StringUtils.hasText(profileSpec)) {
 				String[] specifiedProfiles = StringUtils.tokenizeToStringArray(
@@ -145,7 +147,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 			}
 		}
 
+		//xjh-扩展方法，允许xml在解析之前、之后做一些处理
 		preProcessXml(root);
+		//xjh-解析bd
 		parseBeanDefinitions(root, this.delegate);
 		postProcessXml(root);
 
@@ -173,9 +177,11 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
+						//xjh-默认命名空间处理
 						parseDefaultElement(ele, delegate);
 					}
 					else {
+						//xjh-自定义命名空间处理（没有传入我们前面初始化的delegate）
 						delegate.parseCustomElement(ele);
 					}
 				}
@@ -187,17 +193,24 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	}
 
 	private void parseDefaultElement(Element ele, BeanDefinitionParserDelegate delegate) {
+		//xjh-import
 		if (delegate.nodeNameEquals(ele, IMPORT_ELEMENT)) {
+			//xjh-解析import指向的文件，将文件加载进来，进行一遍loadBeanDefinitions的流程
 			importBeanDefinitionResource(ele);
 		}
+		//xjh-alias
 		else if (delegate.nodeNameEquals(ele, ALIAS_ELEMENT)) {
+			//xjh-调用DefaultListableBeanFactory.registerAlias(name, alias)给bean起别名
 			processAliasRegistration(ele);
 		}
+		//xjh-bean
 		else if (delegate.nodeNameEquals(ele, BEAN_ELEMENT)) {
 			processBeanDefinition(ele, delegate);
 		}
+		//xjh-beans
 		else if (delegate.nodeNameEquals(ele, NESTED_BEANS_ELEMENT)) {
 			// recurse
+			//xjh-如果为beans标签，则重新调用doRegisterBeanDefinitions方法，即beans标签可以嵌套
 			doRegisterBeanDefinitions(ele);
 		}
 	}
@@ -288,6 +301,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 		}
 		if (valid) {
 			try {
+				//xjh-Registry就是DefaultListableBeanFactory，我们通过此factory.registerAlias()方法给bean起别名。具体实现查看SimpleAliasRegistry.registerAlias(name, alias)
 				getReaderContext().getRegistry().registerAlias(name, alias);
 			}
 			catch (Exception ex) {
@@ -303,11 +317,13 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * and registering it with the registry.
 	 */
 	protected void processBeanDefinition(Element ele, BeanDefinitionParserDelegate delegate) {
+		//xjh-BeanDefinitionParserDelegate.parseBeanDefinitionElement()解析bean标签
 		BeanDefinitionHolder bdHolder = delegate.parseBeanDefinitionElement(ele);
 		if (bdHolder != null) {
 			bdHolder = delegate.decorateBeanDefinitionIfRequired(ele, bdHolder);
 			try {
 				// Register the final decorated instance.
+				//xjh-注册bd，即调用DefaultListableBeanFactory.registerBeanDefinition()与SimpleAliasRegistry.registerAlias()
 				BeanDefinitionReaderUtils.registerBeanDefinition(bdHolder, getReaderContext().getRegistry());
 			}
 			catch (BeanDefinitionStoreException ex) {

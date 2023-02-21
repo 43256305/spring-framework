@@ -201,6 +201,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	}
 
 
+	//xjh-此resourceLoader用来实际加载resources，默认为ClassPathXmlApplicationContext
 	private final ResourceLoader resourceLoader;
 
 	private PathMatcher pathMatcher = new AntPathMatcher();
@@ -277,6 +278,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 	@Override
 	public Resource[] getResources(String locationPattern) throws IOException {
 		Assert.notNull(locationPattern, "Location pattern must not be null");
+		//xjh-处理以”classpath*:“开头的路径
 		if (locationPattern.startsWith(CLASSPATH_ALL_URL_PREFIX)) {
 			// a class path resource (multiple resources for same name possible)
 			if (getPathMatcher().isPattern(locationPattern.substring(CLASSPATH_ALL_URL_PREFIX.length()))) {
@@ -299,6 +301,7 @@ public class PathMatchingResourcePatternResolver implements ResourcePatternResol
 			}
 			else {
 				// a single resource with the given name
+				//xjh-不是以使用”classpath*:“开头的路径，且不是"war:"开头的路径，则使用resourceLoader（默认为ClassPathXmlApplicationContext）加载路径
 				return new Resource[] {getResourceLoader().getResource(locationPattern)};
 			}
 		}

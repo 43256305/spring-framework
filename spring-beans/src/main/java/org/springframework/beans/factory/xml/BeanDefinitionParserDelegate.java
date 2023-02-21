@@ -412,17 +412,21 @@ public class BeanDefinitionParserDelegate {
 	 */
 	@Nullable
 	public BeanDefinitionHolder parseBeanDefinitionElement(Element ele, @Nullable BeanDefinition containingBean) {
+		//xjh-获取id与name属性
 		String id = ele.getAttribute(ID_ATTRIBUTE);
 		String nameAttr = ele.getAttribute(NAME_ATTRIBUTE);
 
 		List<String> aliases = new ArrayList<>();
 		if (StringUtils.hasLength(nameAttr)) {
+			//xjh-name可以使用","分割
 			String[] nameArr = StringUtils.tokenizeToStringArray(nameAttr, MULTI_VALUE_ATTRIBUTE_DELIMITERS);
 			aliases.addAll(Arrays.asList(nameArr));
 		}
 
+		//xjh-注意beanName就是id，beanName与name属性不是同一个东西
 		String beanName = id;
 		if (!StringUtils.hasText(beanName) && !aliases.isEmpty()) {
+			//xjh-如果id为空，但是name属性不为空，则使用name属性以逗号分割之后的列表的第一个值来作为id
 			beanName = aliases.remove(0);
 			if (logger.isTraceEnabled()) {
 				logger.trace("No XML 'id' specified - using '" + beanName +
@@ -431,9 +435,11 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		if (containingBean == null) {
+			//xjh-检查所用的id与aliases是否已经被使用过。（通过BeanDefinitionParserDelegate内保存一个Set来保存所有的id与aliases）
 			checkNameUniqueness(beanName, aliases, ele);
 		}
 
+		//xjh-解析beanDefinition，将bean标签的各种属性（如parent、class、description、lookup-method）设置到db中。
 		AbstractBeanDefinition beanDefinition = parseBeanDefinitionElement(ele, beanName, containingBean);
 		if (beanDefinition != null) {
 			if (!StringUtils.hasText(beanName)) {
@@ -443,6 +449,7 @@ public class BeanDefinitionParserDelegate {
 								beanDefinition, this.readerContext.getRegistry(), true);
 					}
 					else {
+						//xjh-如果bean的id与name属性都没有指定，则使用bean的ClassName作为beanName（如com.example.study.entity.SimpleBean#0）
 						beanName = this.readerContext.generateBeanName(beanDefinition);
 						// Register an alias for the plain bean class name, if still possible,
 						// if the generator returned the class name plus a suffix.
@@ -502,6 +509,7 @@ public class BeanDefinitionParserDelegate {
 
 		this.parseState.push(new BeanEntry(beanName));
 
+		//xjh-获取bean的class与parent属性
 		String className = null;
 		if (ele.hasAttribute(CLASS_ATTRIBUTE)) {
 			className = ele.getAttribute(CLASS_ATTRIBUTE).trim();
@@ -512,17 +520,22 @@ public class BeanDefinitionParserDelegate {
 		}
 
 		try {
+			//创建bd（GenericBeanDefinition），设备class与parent
 			AbstractBeanDefinition bd = createBeanDefinition(className, parent);
 
+			//xjh-singleton、scope、primary等等
 			parseBeanDefinitionAttributes(ele, beanName, containingBean, bd);
 			bd.setDescription(DomUtils.getChildElementValueByTagName(ele, DESCRIPTION_ELEMENT));
 
+			//xjh-meta
 			parseMetaElements(ele, bd);
 			parseLookupOverrideSubElements(ele, bd.getMethodOverrides());
 			parseReplacedMethodSubElements(ele, bd.getMethodOverrides());
 
 			parseConstructorArgElements(ele, bd);
+			//xjh-property
 			parsePropertyElements(ele, bd);
+			//xjh-qualifier（@Qualifier与@Autowired一起使用才有作用，@Autowired指定类型，@Qualifier指定名字）
 			parseQualifierElements(ele, bd);
 
 			bd.setResource(this.readerContext.getResource());

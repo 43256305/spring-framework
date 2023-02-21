@@ -45,6 +45,7 @@ import org.springframework.lang.Nullable;
  */
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableConfigApplicationContext {
 
+	//xjh-设置xml文件验证标志
 	private boolean validating = true;
 
 
@@ -80,17 +81,21 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	@Override
 	protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) throws BeansException, IOException {
 		// Create a new XmlBeanDefinitionReader for the given BeanFactory.
+		//xjh-为BeanFactory创建一个新的XmlBeanDefinitionReader，Reader的构造方法中初始化了resourceLoader，并且创建了StandardEnvironment（实际上这两个属性在下面都会重新设置，不会使用默认的）
 		XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
 
 		// Configure the bean definition reader with this context's
 		// resource loading environment.
+		//为BeanDefinitionReader设置Environment、ResourceLoader、ResourceEntityResolver（spring提供的一些xml实体解析器，如dtdResolver，schemaResolver）等
 		beanDefinitionReader.setEnvironment(this.getEnvironment());
+		//这里把自己作为ResourceLoader注入
 		beanDefinitionReader.setResourceLoader(this);
 		beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(this));
 
 		// Allow a subclass to provide custom initialization of the reader,
 		// then proceed with actually loading the bean definitions.
 		initBeanDefinitionReader(beanDefinitionReader);
+		//xjh-适配器模式加载BeanDefinition，真正地加载操作会交给XmlBeanDefinitionReader完成
 		loadBeanDefinitions(beanDefinitionReader);
 	}
 
@@ -124,6 +129,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 			reader.loadBeanDefinitions(configResources);
 		}
 		String[] configLocations = getConfigLocations();
+		//xjh-容器启动时从此处加载xml文件，configLocations为我们传入文件路径
 		if (configLocations != null) {
 			reader.loadBeanDefinitions(configLocations);
 		}

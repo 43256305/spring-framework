@@ -170,6 +170,9 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 	 * @param root the DOM root element of the document
 	 */
 	protected void parseBeanDefinitions(Element root, BeanDefinitionParserDelegate delegate) {
+		// xjh-查看是否为默认命名空间，即：为空或者为http://www.springframework.org/schema/beans即为默认命名空间，默认命名空间交给此类的parseDefaultElement()方法处理，而此方法又会委托给BeanDefinitionParserDelegate处理。
+		// 其他命名空间被视为自定义命名空间，需要调用对应的NamespaceHandler实现类的parse方法进行解析。命名空间与NamespaceHandler对应关系在对应工程的spring.handlers文件内。
+		// 如aop中，交给AopNamespaceHandler处理
 		if (delegate.isDefaultNamespace(root)) {
 			NodeList nl = root.getChildNodes();
 			for (int i = 0; i < nl.getLength(); i++) {
@@ -177,7 +180,7 @@ public class DefaultBeanDefinitionDocumentReader implements BeanDefinitionDocume
 				if (node instanceof Element) {
 					Element ele = (Element) node;
 					if (delegate.isDefaultNamespace(ele)) {
-						//xjh-默认命名空间处理
+						//xjh-默认命名空间处理：import、alias、bean、beans
 						parseDefaultElement(ele, delegate);
 					}
 					else {

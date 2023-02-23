@@ -7,10 +7,14 @@
 				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.5.xsd
 				http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd">
 
-	<bean class="com.example.study.entity.SimpleBean" id="simpleBean"/>
+	<bean class="com.example.study.ioc.SimpleBean" id="simpleBean" primary="true"/>
+
+	<bean class="com.example.study.ioc.SimpleBean" id="simpleBeanNew"/>
 
 <!--	<alias name="simpleBean" alias="simpleBeanAlias"/>-->
 
-	<bean id="myBeanFactoryPostProcessor" class="com.example.study.entity.MyBeanFactoryPostProcessor"/>
+	<bean id="myBeanFactoryPostProcessor" class="com.example.study.ioc.MyBeanFactoryPostProcessor"/>
+
+	<bean id="myBeanPostProcessor" class="com.example.study.ioc.MyBeanPostProcessor" />
 
 </beans>

@@ -151,6 +151,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 	private final List<StringValueResolver> embeddedValueResolvers = new CopyOnWriteArrayList<>();
 
 	/** BeanPostProcessors to apply in createBean. */
+	// xjh-创建中需要使用的BeanPostProcessor，这些processor会应用在所有的bean创建的过程中，如DefaultAdvisorAutoProxyCreator，ApplicationListenerDetector，ApplicationContextAwareProcessor等
+	// 这些默认的processor是在AbstractApplicationContext.prepareBeanFactory()方法中添加
 	private final List<BeanPostProcessor> beanPostProcessors = new CopyOnWriteArrayList<>();
 
 	/** Indicates whether any InstantiationAwareBeanPostProcessors have been registered. */

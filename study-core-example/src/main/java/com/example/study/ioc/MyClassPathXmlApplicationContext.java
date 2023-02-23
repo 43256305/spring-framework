@@ -1,4 +1,4 @@
-package com.example.study;
+package com.example.study.ioc;
 
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

@@ -548,7 +548,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				invokeBeanFactoryPostProcessors(beanFactory);
 
 				// Register bean processors that intercept bean creation.
-				// 初始化并注册（即将此bean将入CopyOnWriteArrayList类型的beanPostProcessors中）（注意这里并没有调用）所有BeanPostProcessor bean
+				// 初始化并注册（即将此bean将入CopyOnWriteArrayList类型的beanPostProcessors中）（注意这里并没有调用）所有BeanPostProcessor bean，这些processor也会走一遍bean的生命周期
 				registerBeanPostProcessors(beanFactory);
 
 				// Initialize message source for this context.

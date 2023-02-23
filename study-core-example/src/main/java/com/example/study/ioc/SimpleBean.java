@@ -1,4 +1,4 @@
-package com.example.study.entity;
+package com.example.study.ioc;
 
 public class SimpleBean {
 

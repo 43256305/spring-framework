@@ -1396,11 +1396,13 @@ public class BeanDefinitionParserDelegate {
 		if (namespaceUri == null) {
 			return null;
 		}
+		// xjh-获取此命名空间对应的NamespaceHandler
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		// handler解析出具体的beanDefinition
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 

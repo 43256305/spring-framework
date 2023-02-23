@@ -48,6 +48,7 @@ public abstract class NamespaceHandlerSupport implements NamespaceHandler {
 	 * Stores the {@link BeanDefinitionParser} implementations keyed by the
 	 * local name of the {@link Element Elements} they handle.
 	 */
+	// xjh-存放了所有注册的BeanDefinitionParser
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
 
 	/**

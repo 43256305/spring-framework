@@ -103,11 +103,15 @@ class ConfigBeanDefinitionParser implements BeanDefinitionParser {
 				new CompositeComponentDefinition(element.getTagName(), parserContext.extractSource(element));
 		parserContext.pushContainingComponent(compositeDef);
 
+		// xjh-读取<aop:config/>标签的两个属性：proxy-target-class & expose-proxy，前者代表了是否强制使用CGlib，后者代表是否将代理类暴露给用户，如果暴露可以通过Spring的AopContext获取
+		// 注册AspectJAwareAdvisorAutoProxyCreator类，此类继承了AbstractAutoProxyCreator，主要是用此类来实现代理。
 		configureAutoProxyCreator(parserContext, element);
 
 		List<Element> childElts = DomUtils.getChildElements(element);
 		for (Element elt: childElts) {
 			String localName = parserContext.getDelegate().getLocalName(elt);
+			// xjh-处理pointcut标签，生成一个BeanDefinition（存放了pointcut标签的id,expression）放置在parserContext中
+			// 生成的definition的类为AspectJExpressionPointcut，id为标签的id，scope为prototype
 			if (POINTCUT.equals(localName)) {
 				parsePointcut(elt, parserContext);
 			}

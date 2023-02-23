@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:aop="http://www.springframework.org/schema/aop"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+				http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+				http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+	<bean id="orderServiceImpl" class="com.example.study.aop.OrderServiceImpl" />
+
+	<bean id="logArgsAdvice" class="com.example.study.aop.LogArgsAdvice" />
+
+	<bean id="logResultAdvice" class="com.example.study.aop.LogResultAdvice" />
+
+	<bean id="logArgsAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="logArgsAdvice"/>
+		<property name="pattern" value="com.example.study.aop.*.create.*"/>
+	</bean>
+
+	<bean id="logResultAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+		<property name="advice" ref="logResultAdvice"/>
+		<property name="pattern" value="com.example.study.aop.*.create.*"/>
+	</bean>
+
+<!--	创建aop代理，DefaultAdvisorAutoProxyCreator此类实现了BeanPostProcessor接口，bean都是通过AbstractAutoProxyCreator.postProcessAfterInitialization()的方式实现增强-->
+	<bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+<!--	使用CGLIB：可以通过proxy-target-class="true" 强制使用CGlib代理。
+1.使用CGlib是，final方法不能被代理
+2.需要引入CGlib的包，而动态代理只需要JDK
+3.被代理对象的构造方法会被执行两次
+-->
+
+</beans>

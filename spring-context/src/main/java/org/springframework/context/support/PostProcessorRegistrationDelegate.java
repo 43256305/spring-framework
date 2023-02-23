@@ -215,6 +215,7 @@ final class PostProcessorRegistrationDelegate {
 		for (String ppName : postProcessorNames) {
 			// 实现了PriorityOrdered接口
 			if (beanFactory.isTypeMatch(ppName, PriorityOrdered.class)) {
+				// xjh-这里beanFactory.getBean会导致BeanPostProcessor被创建并初始化
 				BeanPostProcessor pp = beanFactory.getBean(ppName, BeanPostProcessor.class);
 				priorityOrderedPostProcessors.add(pp);
 				// 实现了PriorityOrdered接口，且实现了MergedBeanDefinitionPostProcessor接口

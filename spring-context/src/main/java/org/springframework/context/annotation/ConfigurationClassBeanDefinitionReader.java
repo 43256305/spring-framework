@@ -116,6 +116,7 @@ class ConfigurationClassBeanDefinitionReader {
 	 */
 	public void loadBeanDefinitions(Set<ConfigurationClass> configurationModel) {
 		TrackedConditionEvaluator trackedConditionEvaluator = new TrackedConditionEvaluator();
+		// xjh-这里按照configurationModel此Set的顺序一个一个注册bd，而bean的顺序决定了bean的覆盖，后者覆盖前者。
 		for (ConfigurationClass configClass : configurationModel) {
 			loadBeanDefinitionsForConfigurationClass(configClass, trackedConditionEvaluator);
 		}
@@ -124,6 +125,7 @@ class ConfigurationClassBeanDefinitionReader {
 	/**
 	 * Read a particular {@link ConfigurationClass}, registering bean definitions
 	 * for the class itself and all of its {@link Bean} methods.
+	 *  // 注意，这个方法是根据前面的Set一个一个调用的，所以bean的注册顺序是按照set中的顺序，而不是下面方法中代码的顺序
 	 */
 	private void loadBeanDefinitionsForConfigurationClass(
 			ConfigurationClass configClass, TrackedConditionEvaluator trackedConditionEvaluator) {
@@ -137,14 +139,18 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// xjh-处理@Import进来的BeanDefinition
 		if (configClass.isImported()) {
 			registerBeanDefinitionForImportedConfigurationClass(configClass);
 		}
+		// 处理@Bean引入的bd
 		for (BeanMethod beanMethod : configClass.getBeanMethods()) {
 			loadBeanDefinitionsForBeanMethod(beanMethod);
 		}
 
+		// 注册importedResources进来的bean
 		loadBeanDefinitionsFromImportedResources(configClass.getImportedResources());
+		// 将configClass中ImportedRegistrar注册为bean
 		loadBeanDefinitionsFromRegistrars(configClass.getImportBeanDefinitionRegistrars());
 	}
 
@@ -162,6 +168,7 @@ class ConfigurationClassBeanDefinitionReader {
 
 		BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(configBeanDef, configBeanName);
 		definitionHolder = AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
+		// xjh-注册beanDefinition
 		this.registry.registerBeanDefinition(definitionHolder.getBeanName(), definitionHolder.getBeanDefinition());
 		configClass.setBeanName(configBeanName);
 
@@ -178,6 +185,7 @@ class ConfigurationClassBeanDefinitionReader {
 	private void loadBeanDefinitionsForBeanMethod(BeanMethod beanMethod) {
 		ConfigurationClass configClass = beanMethod.getConfigurationClass();
 		MethodMetadata metadata = beanMethod.getMetadata();
+		// xjh-@Bean获取方法名
 		String methodName = metadata.getMethodName();
 
 		// Do we need to mark the bean as skipped by its condition?
@@ -189,11 +197,13 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// 获取@Bean注解的元数据信息
 		AnnotationAttributes bean = AnnotationConfigUtils.attributesFor(metadata, Bean.class);
 		Assert.state(bean != null, "No @Bean annotation attributes");
 
 		// Consider name and any aliases
 		List<String> names = new ArrayList<>(Arrays.asList(bean.getStringArray("name")));
+		// 如果@Bean的name属性为空，则取methodName作为beanName
 		String beanName = (!names.isEmpty() ? names.remove(0) : methodName);
 
 		// Register aliases even when overridden
@@ -211,10 +221,12 @@ class ConfigurationClassBeanDefinitionReader {
 			return;
 		}
 
+		// 创建bd
 		ConfigurationClassBeanDefinition beanDef = new ConfigurationClassBeanDefinition(configClass, metadata);
 		beanDef.setResource(configClass.getResource());
 		beanDef.setSource(this.sourceExtractor.extractSource(metadata, configClass.getResource()));
 
+		// 是否为static的bean方法
 		if (metadata.isStatic()) {
 			// static @Bean method
 			if (configClass.getMetadata() instanceof StandardAnnotationMetadata) {
@@ -227,6 +239,7 @@ class ConfigurationClassBeanDefinitionReader {
 		}
 		else {
 			// instance @Bean method
+			// 设置FactoryBean，后续生成bean的时候，会调用此工厂方法来生成
 			beanDef.setFactoryBeanName(configClass.getBeanName());
 			beanDef.setUniqueFactoryMethodName(methodName);
 		}
@@ -284,6 +297,7 @@ class ConfigurationClassBeanDefinitionReader {
 			logger.trace(String.format("Registering bean definition for @Bean method %s.%s()",
 					configClass.getMetadata().getClassName(), beanName));
 		}
+		// 注册beanDefinition
 		this.registry.registerBeanDefinition(beanName, beanDefToRegister);
 	}
 

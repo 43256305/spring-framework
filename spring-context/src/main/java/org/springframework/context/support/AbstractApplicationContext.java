@@ -741,7 +741,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 * <p>Must be called before singleton instantiation.
 	 */
 	protected void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-		// xjh-调用beanFactoryPostProcessors列表中的BeanFactoryPostProcessor.postProcessBeanFactory(beanFactory)
+		// xjh-调用BeanDefinitionRegistryPostProcessor.postProcessBeanDefinitionRegistry()方法，与beanFactoryPostProcessors列表中的BeanFactoryPostProcessor.postProcessBeanFactory(beanFactory)
 		// 我们可以通过addBeanFactoryPostProcessor将我们自己定义的BeanFactoryPostProcessor加入进去。使用xml启动时，就算我们在xml中写了实现了相关接口的bean，此列表也是没有值的，但自定义的bean的postProcessBeanFactory会被调用，原因查看具体实现。
 		// 注意，调用到这里时，所有的bean都没有被初始化，如果我们在postProcessBeanFactory(beanFactory)方法中获取某个bean，会导致此bean被提前初始化
 		PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(beanFactory, getBeanFactoryPostProcessors());

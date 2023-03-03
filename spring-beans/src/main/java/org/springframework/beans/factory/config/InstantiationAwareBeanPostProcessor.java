@@ -47,6 +47,9 @@ import org.springframework.lang.Nullable;
 public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
 	/**
+	 * xjh-主要用于bean在实例化（doCreateBean(beanName, mbdToUse, args)）之前被调用，如果返回类某个类，则此bean并不会进行正常的实例化步骤，而会直接返回。
+	 * 在resolveBeforeInstantiation(beanName, mbdToUse)方法中被调用。
+	 *
 	 * Apply this BeanPostProcessor <i>before the target bean gets instantiated</i>.
 	 * The returned bean object may be a proxy to use instead of the target bean,
 	 * effectively suppressing default instantiation of the target bean.
@@ -76,6 +79,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+	 * xjh-用于bean被初始化之后，属性填充之前，用于自定义属性注入。
+	 * 在populateBean(beanName, mbd, instanceWrapper)方法中被调用。
 	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
 	 * but before Spring property population (from explicit properties or autowiring) occurs.
 	 * <p>This is the ideal callback for performing custom field injection on the given bean
@@ -120,6 +125,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+	 * xjh-用于对bean属性注入之后，如检查所有Required的属性是否全部注入，如修改一些属性。
 	 * Post-process the given property values before the factory applies them
 	 * to the given bean. Allows for checking whether all dependencies have been
 	 * satisfied, for example based on a "Required" annotation on bean property setters.

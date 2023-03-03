@@ -90,6 +90,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		AnnotationMetadata metadata;
+		// xjh-根据不同的beanDef类型获取metadata，监测bean是否注解了@Configuration，没有则返回false
 		if (beanDef instanceof AnnotatedBeanDefinition &&
 				className.equals(((AnnotatedBeanDefinition) beanDef).getMetadata().getClassName())) {
 			// Can reuse the pre-parsed metadata from the given BeanDefinition...
@@ -121,10 +122,13 @@ abstract class ConfigurationClassUtils {
 			}
 		}
 
+		// 获取@Configuration注解的属性
 		Map<String, Object> config = metadata.getAnnotationAttributes(Configuration.class.getName());
+		// 如果获取的属性包含proxyBeanMethods且为true，则给beanDef设置CONFIGURATION_CLASS_ATTRIBUTE属性为full。proxyBeanMethods其实就是@SpringBootConfiguration注解在@Configuration的基础上增加的属性，表示@Bean指定的bean是否可以aop代理。
 		if (config != null && !Boolean.FALSE.equals(config.get("proxyBeanMethods"))) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_FULL);
 		}
+		// 如果元数据包含@Bean、@Component、ComponentScan、@Import、@ImportResource，则给beanDef设置CONFIGURATION_CLASS_ATTRIBUTE属性为lite。
 		else if (config != null || isConfigurationCandidate(metadata)) {
 			beanDef.setAttribute(CONFIGURATION_CLASS_ATTRIBUTE, CONFIGURATION_CLASS_LITE);
 		}
@@ -155,6 +159,7 @@ abstract class ConfigurationClassUtils {
 		}
 
 		// Any of the typical annotations found?
+		// xjh-Component/ComponentScan/Import/ImportResource 这四种的任意一种则返回true
 		for (String indicator : candidateIndicators) {
 			if (metadata.isAnnotated(indicator)) {
 				return true;
@@ -163,6 +168,7 @@ abstract class ConfigurationClassUtils {
 
 		// Finally, let's look for @Bean methods...
 		try {
+			// 如果有@Bean注解，则返回true
 			return metadata.hasAnnotatedMethods(Bean.class.getName());
 		}
 		catch (Throwable ex) {

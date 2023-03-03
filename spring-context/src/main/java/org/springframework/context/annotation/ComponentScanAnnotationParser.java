@@ -74,6 +74,7 @@ class ComponentScanAnnotationParser {
 
 
 	public Set<BeanDefinitionHolder> parse(AnnotationAttributes componentScan, final String declaringClass) {
+		// xjh-构造一个scanner，下面的操作一直在为此scanner注入如nameGenerator，scopeResolver，includeFilters等@ComponentScan属性自定义组件。
 		ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(this.registry,
 				componentScan.getBoolean("useDefaultFilters"), this.environment, this.resourceLoader);
 
@@ -129,6 +130,7 @@ class ComponentScanAnnotationParser {
 				return declaringClass.equals(className);
 			}
 		});
+		// xjh-进行扫描操作
 		return scanner.doScan(StringUtils.toStringArray(basePackages));
 	}
 

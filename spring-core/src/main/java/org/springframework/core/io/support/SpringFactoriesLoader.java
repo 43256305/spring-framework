@@ -64,6 +64,7 @@ public final class SpringFactoriesLoader {
 	/**
 	 * The location to look for factories.
 	 * <p>Can be present in multiple JAR files.
+	 * xjh-自动装配加载位置
 	 */
 	public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
 
@@ -95,6 +96,7 @@ public final class SpringFactoriesLoader {
 		if (classLoaderToUse == null) {
 			classLoaderToUse = SpringFactoriesLoader.class.getClassLoader();
 		}
+		// xjh-加载key为factoryType类型的value列表
 		List<String> factoryImplementationNames = loadFactoryNames(factoryType, classLoaderToUse);
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loaded [" + factoryType.getName() + "] names: " + factoryImplementationNames);
@@ -119,10 +121,12 @@ public final class SpringFactoriesLoader {
 	 */
 	public static List<String> loadFactoryNames(Class<?> factoryType, @Nullable ClassLoader classLoader) {
 		String factoryTypeName = factoryType.getName();
+		// xjh-loadSpringFactories(classLoader)为加载META-INF/spring.factories文件作为一个map返回。然后返回map中key为factoryType的valueList
 		return loadSpringFactories(classLoader).getOrDefault(factoryTypeName, Collections.emptyList());
 	}
 
 	private static Map<String, List<String>> loadSpringFactories(@Nullable ClassLoader classLoader) {
+		// xjh-将加载的文件的key、value值放置在缓存中，即同一个classLoader此文件只会加载一次
 		MultiValueMap<String, String> result = cache.get(classLoader);
 		if (result != null) {
 			return result;

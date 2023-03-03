@@ -508,6 +508,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		try {
 			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
 			//xjh-如果这里返回的bean不是空，则直接返回，不进行下面的初始化流程，此接口用于初始化自定义的bean，主要是在Spring内部使用
+			// 这里主要是调用InstantiationAwareBeanPostProcessor.postProcessBeforeInstantiation()接口，用于在bean被实例化之前实例化bean，如果这里实现了，则不会进行正常bean的实例化步骤，而会直接返回
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -1404,6 +1405,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
 		// to support styles of field injection.
+		// xjh-调用InstantiationAwareBeanPostProcessor.postProcessAfterInstantiation()方法，用于在属性填充之前，修改bean的状态，如自己填充一些属性。
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {

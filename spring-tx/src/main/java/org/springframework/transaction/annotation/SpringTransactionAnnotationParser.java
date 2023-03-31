@@ -64,6 +64,7 @@ public class SpringTransactionAnnotationParser implements TransactionAnnotationP
 	protected TransactionAttribute parseTransactionAnnotation(AnnotationAttributes attributes) {
 		RuleBasedTransactionAttribute rbta = new RuleBasedTransactionAttribute();
 
+		// xjh-解析@Transactional注解属性，并放入rbta中
 		Propagation propagation = attributes.getEnum("propagation");
 		rbta.setPropagationBehavior(propagation.value());
 		Isolation isolation = attributes.getEnum("isolation");

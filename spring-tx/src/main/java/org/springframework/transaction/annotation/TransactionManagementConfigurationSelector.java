@@ -34,6 +34,8 @@ import org.springframework.util.ClassUtils;
  * @see ProxyTransactionManagementConfiguration
  * @see TransactionManagementConfigUtils#TRANSACTION_ASPECT_CONFIGURATION_CLASS_NAME
  * @see TransactionManagementConfigUtils#JTA_TRANSACTION_ASPECT_CONFIGURATION_CLASS_NAME
+ * 
+ * xjh-与@EnableTransactionManagement注解配合使用，注入事务相关的bean
  */
 public class TransactionManagementConfigurationSelector extends AdviceModeImportSelector<EnableTransactionManagement> {
 
@@ -45,6 +47,11 @@ public class TransactionManagementConfigurationSelector extends AdviceModeImport
 	 */
 	@Override
 	protected String[] selectImports(AdviceMode adviceMode) {
+		// xjh-判断使用SpringAop代理还是Aspectj代理，并返回相关的代理类
+		// 默认使用SpringAop代理，AutoProxyRegistrar作用：给容器中注册一个 InfrastructureAdvisorAutoProxyCreator 组件；利用后置处理器机制在对象创建以后，包装对象，返回一个代理对象（增强器），代理对象执行方法利用拦截器链进行调用；
+		// ProxyTransactionManagementConfiguration:定义了三个类：分别是解析@Transactional注解，拦截器拦截此注解方法并在业务方法前后开启事务，增强器增强此注解方法。
+		// BeanFactoryTransactionAttributeSourceAdvisor与InfrastructureAdvisorAutoProxyCreator的区别：前者为advisor，是Pointcut 与 Advice 的组合，Pointcut定义了切面，advice为对切面的操作
+		// 而InfrastructureAdvisorAutoProxyCreator用于通过获取advisor来创建代理类，作用就是为了创建代理
 		switch (adviceMode) {
 			case PROXY:
 				return new String[] {AutoProxyRegistrar.class.getName(),

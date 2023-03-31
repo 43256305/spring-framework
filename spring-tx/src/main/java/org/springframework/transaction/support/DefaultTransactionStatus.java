@@ -50,17 +50,21 @@ import org.springframework.util.Assert;
  */
 public class DefaultTransactionStatus extends AbstractTransactionStatus {
 
+	// 当前事务
 	@Nullable
 	private final Object transaction;
 
+	// 当前事务是否为新事务
 	private final boolean newTransaction;
 
 	private final boolean newSynchronization;
 
+	// 当前事务是否可读
 	private final boolean readOnly;
 
 	private final boolean debug;
 
+	// 挂起的资源
 	@Nullable
 	private final Object suspendedResources;
 

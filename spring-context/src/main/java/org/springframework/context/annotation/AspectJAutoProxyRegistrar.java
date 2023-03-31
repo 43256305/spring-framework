@@ -42,6 +42,7 @@ class AspectJAutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 	public void registerBeanDefinitions(
 			AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
 
+		// xjh-引入事务增强器AnnotationAwareAspectJAutoProxyCreator，该类优先级大于InfrastructureAdvisorAutoProxyCreator，所以只要引入了spring-boot-aop依赖，则自动会使用此增强器
 		AopConfigUtils.registerAspectJAnnotationAutoProxyCreatorIfNecessary(registry);
 
 		AnnotationAttributes enableAspectJAutoProxy =

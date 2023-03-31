@@ -37,12 +37,15 @@ import java.io.Flushable;
  */
 public interface TransactionSynchronization extends Flushable {
 
+	// 事务提交状态
 	/** Completion status in case of proper commit. */
 	int STATUS_COMMITTED = 0;
 
+	// 事务回滚状态
 	/** Completion status in case of proper rollback. */
 	int STATUS_ROLLED_BACK = 1;
 
+	// 事务状态未知
 	/** Completion status in case of heuristic mixed completion or system errors. */
 	int STATUS_UNKNOWN = 2;
 
@@ -51,6 +54,8 @@ public interface TransactionSynchronization extends Flushable {
 	 * Suspend this synchronization.
 	 * Supposed to unbind resources from TransactionSynchronizationManager if managing any.
 	 * @see TransactionSynchronizationManager#unbindResource
+	 *
+	 * xjh-暂停当前事务，用于挂起线程，本质是将当前线程与当前事务解绑
 	 */
 	default void suspend() {
 	}
@@ -59,6 +64,8 @@ public interface TransactionSynchronization extends Flushable {
 	 * Resume this synchronization.
 	 * Supposed to rebind resources to TransactionSynchronizationManager if managing any.
 	 * @see TransactionSynchronizationManager#bindResource
+	 *
+	 * xjh-恢复当前事务，将已经挂起的线程与当前事务重新绑定
 	 */
 	default void resume() {
 	}
@@ -85,6 +92,10 @@ public interface TransactionSynchronization extends Flushable {
 	 * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b>
 	 * (note: do not throw TransactionException subclasses here!)
 	 * @see #beforeCompletion
+	 *
+	 * xjh-在事务提交之前调用，先于beforeCompletion
+	 * 此回调并不意味着事务将实际提交，在调用此方法之后，仍然可以发生回滚
+	 * 此接口可以用于如刷新sql到数据库中
 	 */
 	default void beforeCommit(boolean readOnly) {
 	}
@@ -99,6 +110,8 @@ public interface TransactionSynchronization extends Flushable {
 	 * (note: do not throw TransactionException subclasses here!)
 	 * @see #beforeCommit
 	 * @see #afterCompletion
+	 *
+	 * xjh-在事务提交之前调用，可以在事务完成之前执行资源清理
 	 */
 	default void beforeCompletion() {
 	}
@@ -117,6 +130,8 @@ public interface TransactionSynchronization extends Flushable {
 	 * transactional operation that is called from here.</b>
 	 * @throws RuntimeException in case of errors; will be <b>propagated to the caller</b>
 	 * (note: do not throw TransactionException subclasses here!)
+	 *
+	 * xjh-事务成功提交之后调用。
 	 */
 	default void afterCommit() {
 	}
@@ -138,6 +153,8 @@ public interface TransactionSynchronization extends Flushable {
 	 * @see #STATUS_ROLLED_BACK
 	 * @see #STATUS_UNKNOWN
 	 * @see #beforeCompletion
+	 *
+	 * xjh-事务提交或回滚后调用，用于清理资源。
 	 */
 	default void afterCompletion(int status) {
 	}

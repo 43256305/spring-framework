@@ -386,6 +386,7 @@ public abstract class DataSourceUtils {
 				return;
 			}
 		}
+		// 执行connection.close()
 		doCloseConnection(con, dataSource);
 	}
 

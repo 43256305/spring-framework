@@ -114,17 +114,22 @@ public abstract class AopConfigUtils {
 		}
 	}
 
+	// 此方法被三个地方调用，分别注册：InfrastructureAdvisorAutoProxyCreator、AspectJAwareAdvisorAutoProxyCreator、AnnotationAwareAspectJAutoProxyCreator。
+	// 优先级后者大于前者。即一旦优先级最高的调用，则其他的再调用，注册的bean也会是优先级最高的。而如果优先级小的先调用，后面优先级大的再调用时，也会替换成大的类。
 	@Nullable
 	private static BeanDefinition registerOrEscalateApcAsRequired(
 			Class<?> cls, BeanDefinitionRegistry registry, @Nullable Object source) {
 
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 
+		// xjh-如果当前已经注册了beanName为internalAutoProxyCreator的bd，则选择优先级高的，并直接返回
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName());
 				int requiredPriority = findPriorityForClass(cls);
+				// 如果当前已经存在的internalAutoProxyCreator的优先级小于，传入的cls的优先级，则使用传入的cls
+				// 而在APC_PRIORITY_LIST中，InfrastructureAdvisorAutoProxyCreator的优先级是最低的，即一旦其他的AutoProxyCreate已经作为internalAutoProxyCreator注册，则InfrastructureAdvisorAutoProxyCreator并不会注册
 				if (currentPriority < requiredPriority) {
 					apcDefinition.setBeanClassName(cls.getName());
 				}
@@ -136,6 +141,7 @@ public abstract class AopConfigUtils {
 		beanDefinition.setSource(source);
 		beanDefinition.getPropertyValues().add("order", Ordered.HIGHEST_PRECEDENCE);
 		beanDefinition.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		// xjh-注册传入的cls
 		registry.registerBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME, beanDefinition);
 		return beanDefinition;
 	}

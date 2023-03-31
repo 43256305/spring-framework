@@ -73,26 +73,34 @@ import org.springframework.util.Assert;
  * @see org.springframework.transaction.jta.JtaTransactionManager
  * @see org.springframework.jdbc.datasource.DataSourceTransactionManager
  * @see org.springframework.jdbc.datasource.DataSourceUtils#getConnection
+ *
+ * xjh-管理线程的资源与同步状态
  */
 public abstract class TransactionSynchronizationManager {
 
 	private static final Log logger = LogFactory.getLog(TransactionSynchronizationManager.class);
 
+	// 保存了当前线程的连接资源，datasource:connection，在mybatis中如果没有配置数据池，则key实际为SqlSessionFactory
 	private static final ThreadLocal<Map<Object, Object>> resources =
 			new NamedThreadLocal<>("Transactional resources");
 
+	// 保存了当前线程的事务同步器
 	private static final ThreadLocal<Set<TransactionSynchronization>> synchronizations =
 			new NamedThreadLocal<>("Transaction synchronizations");
 
+	// 保存了当前线程的事务名称
 	private static final ThreadLocal<String> currentTransactionName =
 			new NamedThreadLocal<>("Current transaction name");
 
+	// 当前线程的事务是否只读
 	private static final ThreadLocal<Boolean> currentTransactionReadOnly =
 			new NamedThreadLocal<>("Current transaction read-only status");
 
+	// 当前线程事务的隔离级别
 	private static final ThreadLocal<Integer> currentTransactionIsolationLevel =
 			new NamedThreadLocal<>("Current transaction isolation level");
 
+	// 当前线程事务的活跃状态
 	private static final ThreadLocal<Boolean> actualTransactionActive =
 			new NamedThreadLocal<>("Actual transaction active");
 
@@ -109,6 +117,8 @@ public abstract class TransactionSynchronizationManager {
 	 * values (usually the active resource object), or an empty Map if there are
 	 * currently no resources bound
 	 * @see #hasResource
+	 *
+	 * xjh-当前线程的连接资源
 	 */
 	public static Map<Object, Object> getResourceMap() {
 		Map<Object, Object> map = resources.get();
@@ -120,6 +130,8 @@ public abstract class TransactionSynchronizationManager {
 	 * @param key the key to check (usually the resource factory)
 	 * @return if there is a value bound to the current thread
 	 * @see ResourceTransactionManager#getResourceFactory()
+	 *
+	 * xjh-当前线程是否包含了事务相关资源
 	 */
 	public static boolean hasResource(Object key) {
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
@@ -133,6 +145,8 @@ public abstract class TransactionSynchronizationManager {
 	 * @return a value bound to the current thread (usually the active
 	 * resource object), or {@code null} if none
 	 * @see ResourceTransactionManager#getResourceFactory()
+	 *
+	 * xjh-获取资源（connection），key为datasource
 	 */
 	@Nullable
 	public static Object getResource(Object key) {
@@ -147,15 +161,20 @@ public abstract class TransactionSynchronizationManager {
 
 	/**
 	 * Actually check the value of the resource that is bound for the given key.
+	 *
+	 * xjh-通过给定key获取当前线程中此key对应的connection
 	 */
 	@Nullable
 	private static Object doGetResource(Object actualKey) {
+		// 获取当前线程资源map
 		Map<Object, Object> map = resources.get();
 		if (map == null) {
 			return null;
 		}
+		// 根据key获取value
 		Object value = map.get(actualKey);
 		// Transparently remove ResourceHolder that was marked as void...
+		// 如果资源不活跃了，则删除资源返回null
 		if (value instanceof ResourceHolder && ((ResourceHolder) value).isVoid()) {
 			map.remove(actualKey);
 			// Remove entire ThreadLocal if empty...
@@ -173,6 +192,8 @@ public abstract class TransactionSynchronizationManager {
 	 * @param value the value to bind (usually the active resource object)
 	 * @throws IllegalStateException if there is already a value bound to the thread
 	 * @see ResourceTransactionManager#getResourceFactory()
+	 *
+	 * xjh-将给定资源绑定到当前线程
 	 */
 	public static void bindResource(Object key, Object value) throws IllegalStateException {
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
@@ -180,11 +201,14 @@ public abstract class TransactionSynchronizationManager {
 		Map<Object, Object> map = resources.get();
 		// set ThreadLocal Map if none found
 		if (map == null) {
+			// 如果当前线程没有资源，则创建一个map
 			map = new HashMap<>();
 			resources.set(map);
 		}
+		// 将资源放入map中。oldValue为map中原来就有的key对应的value
 		Object oldValue = map.put(actualKey, value);
 		// Transparently suppress a ResourceHolder that was marked as void...
+		// 如果oldValue为无效资源
 		if (oldValue instanceof ResourceHolder && ((ResourceHolder) oldValue).isVoid()) {
 			oldValue = null;
 		}
@@ -204,6 +228,8 @@ public abstract class TransactionSynchronizationManager {
 	 * @return the previously bound value (usually the active resource object)
 	 * @throws IllegalStateException if there is no value bound to the thread
 	 * @see ResourceTransactionManager#getResourceFactory()
+	 *
+	 * xjh-资源解绑
 	 */
 	public static Object unbindResource(Object key) throws IllegalStateException {
 		Object actualKey = TransactionSynchronizationUtils.unwrapResourceIfNecessary(key);
@@ -235,8 +261,10 @@ public abstract class TransactionSynchronizationManager {
 		if (map == null) {
 			return null;
 		}
+		// 从map中去除key
 		Object value = map.remove(actualKey);
 		// Remove entire ThreadLocal if empty...
+		// 如果当前线程已经没有资源了，则清空当前线程资源
 		if (map.isEmpty()) {
 			resources.remove();
 		}

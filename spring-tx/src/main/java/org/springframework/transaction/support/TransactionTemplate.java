@@ -128,19 +128,23 @@ public class TransactionTemplate extends DefaultTransactionDefinition
 	@Override
 	@Nullable
 	public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+		// TransactionTemplate用于编程式事务，可以看到，内部事务的提交与回滚都是使用TransactionManager与TransactionStatus完成的
 		Assert.state(this.transactionManager != null, "No PlatformTransactionManager set");
 
 		if (this.transactionManager instanceof CallbackPreferringPlatformTransactionManager) {
 			return ((CallbackPreferringPlatformTransactionManager) this.transactionManager).execute(this, action);
 		}
 		else {
+			// xjh-获取事务状态（根据配置挂起原事务、开启事务等一系列操作），this作为TransactionDefinition传入，TransactionDefinition为事务的相关配置
 			TransactionStatus status = this.transactionManager.getTransaction(this);
 			T result;
 			try {
+				// 执行业务方法
 				result = action.doInTransaction(status);
 			}
 			catch (RuntimeException | Error ex) {
 				// Transactional code threw application exception -> rollback
+				// 事务回滚（传入了我们前面创建的status）
 				rollbackOnException(status, ex);
 				throw ex;
 			}
@@ -149,6 +153,7 @@ public class TransactionTemplate extends DefaultTransactionDefinition
 				rollbackOnException(status, ex);
 				throw new UndeclaredThrowableException(ex, "TransactionCallback threw undeclared checked exception");
 			}
+			// 事务提交
 			this.transactionManager.commit(status);
 			return result;
 		}

@@ -251,6 +251,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	public int scan(String... basePackages) {
 		int beanCountAtScanStart = this.registry.getBeanDefinitionCount();
 
+		// xjh-here
 		doScan(basePackages);
 
 		// Register annotation config processors, if necessary.
@@ -271,21 +272,31 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 */
 	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
+		// xjh-放置bd，BeanDefinitionHolder只包含：beanDefinition、beanName、aliases
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<>();
+		// 遍历传入的包名
 		for (String basePackage : basePackages) {
+			// 获取包下面所有bd，扫描到的bd实际类型为：ScannedGenericBeanDefinition
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
+				// 解析@Scope注解
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);
 				candidate.setScope(scopeMetadata.getScopeName());
+				// 生成beanName
+				// 首先从注解中获取beanName，如果没有则使用generator生成，注解中默认使用ClassUtils.getShortName()当做beanName
 				String beanName = this.beanNameGenerator.generateBeanName(candidate, this.registry);
+				// bd的实现类只有两个分支：AbstractBeanDefinition与AnnotatedBeanDefinition
+				// 如果bd属于AbstractBeanDefinition这一分支
 				if (candidate instanceof AbstractBeanDefinition) {
 					postProcessBeanDefinition((AbstractBeanDefinition) candidate, beanName);
 				}
 				if (candidate instanceof AnnotatedBeanDefinition) {
 					AnnotationConfigUtils.processCommonDefinitionAnnotations((AnnotatedBeanDefinition) candidate);
 				}
+				// 检查beanName是否冲突
 				if (checkCandidate(beanName, candidate)) {
 					BeanDefinitionHolder definitionHolder = new BeanDefinitionHolder(candidate, beanName);
+					// 根据proxyMode的值，判断是否需要创建scope代理，一般都是不需要
 					definitionHolder =
 							AnnotationConfigUtils.applyScopedProxyMode(scopeMetadata, definitionHolder, this.registry);
 					beanDefinitions.add(definitionHolder);

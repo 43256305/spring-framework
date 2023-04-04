@@ -418,20 +418,27 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 	private Set<BeanDefinition> scanCandidateComponents(String basePackage) {
 		Set<BeanDefinition> candidates = new LinkedHashSet<>();
 		try {
+			// 生成完整的资源解析路径，如：com.example.study.config-->classpath*:com/example/study/config/**/*.class
 			String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX +
 					resolveBasePackage(basePackage) + '/' + this.resourcePattern;
+			// 获取符合上面模式的资源
 			Resource[] resources = getResourcePatternResolver().getResources(packageSearchPath);
 			boolean traceEnabled = logger.isTraceEnabled();
 			boolean debugEnabled = logger.isDebugEnabled();
+			// 遍历资源
 			for (Resource resource : resources) {
 				if (traceEnabled) {
 					logger.trace("Scanning " + resource);
 				}
 				if (resource.isReadable()) {
 					try {
+						// 生成一个元数据reader，默认使用SimpleMetadataReader，此类使用asm来加载类的元数据，最终生成一个SimpleAnnotationMetadata，记录了类的一些元数据。
+						// 注意，Spring中，通过将class文件以字节码文件(.class)的方式加载进来，使用asm来读取类的元数据，读取完成后，资源会被丢弃。整个过程没有用到jvm类加载。
 						MetadataReader metadataReader = getMetadataReaderFactory().getMetadataReader(resource);
+						// 检查读取到的类是否可以作为candidate，即是否符合TypeFilter过滤器的要求
 						if (isCandidateComponent(metadataReader)) {
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
+							// 将资源、元数据reader放入新建的ScannedGenericBeanDefinition
 							sbd.setResource(resource);
 							sbd.setSource(resource);
 							if (isCandidateComponent(sbd)) {

@@ -2,6 +2,7 @@ package com.example.study;
 
 import com.example.study.config.MyConfig;
 import org.junit.jupiter.api.Test;
+import org.springframework.asm.ClassReader;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.ChildBeanDefinition;
@@ -11,6 +12,9 @@ import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.annotation.AnnotatedBeanDefinitionReader;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
+import org.springframework.core.io.ClassPathResource;
+
+import java.io.IOException;
 
 public class BeanDefinitionTest {
 
@@ -80,5 +84,18 @@ public class BeanDefinitionTest {
 		System.out.println(simpleBeanDefinitionRegistry.containsBeanDefinition("user"));
 		// 这里为true
 		System.out.println(simpleBeanDefinitionRegistry.containsBeanDefinition("myConfig"));
+	}
+
+	@Test
+	public void testAsm() throws IOException {
+		// Spring中，通过将class文件以字节码文件(.class)的方式加载进来，使用asm来读取类的元数据，读取完成后，资源会被丢弃。整个过程没有用到jvm类加载。
+		// asm测试
+		ClassPathResource resource = new ClassPathResource("com/example/study/config/MyConfig.class");
+		ClassReader classReader = new ClassReader(resource.getInputStream());
+		// 打印一些元数据
+		System.out.println(classReader.getClassName());
+		// 常量池偏移量
+		System.out.println(classReader.getItem(1));
+		System.out.println(classReader.getAccess());
 	}
 }

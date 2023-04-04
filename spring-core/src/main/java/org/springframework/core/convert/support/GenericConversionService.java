@@ -91,6 +91,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 			throw new IllegalArgumentException("Unable to determine source type <S> and target type <T> for your " +
 					"Converter [" + converter.getClass().getName() + "]; does the class parameterize those types?");
 		}
+		// 将Converter转换为GenericConverter
 		addConverter(new ConverterAdapter(converter, typeInfo[0], typeInfo[1]));
 	}
 
@@ -501,6 +502,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 
 		private final Set<GenericConverter> globalConverters = new LinkedHashSet<>();
 
+		// ConvertiblePair为source、target对，代表了能够转换的一对类型。ConvertersForPair包含了一个队列，代表了能够转换这一对类型的Converter
 		private final Map<ConvertiblePair, ConvertersForPair> converters = new LinkedHashMap<>(36);
 
 		public void add(GenericConverter converter) {
@@ -651,6 +653,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 	 */
 	private static class ConvertersForPair {
 
+		// 一个队列用于保存GenericConverter
 		private final LinkedList<GenericConverter> converters = new LinkedList<>();
 
 		public void add(GenericConverter converter) {
@@ -660,6 +663,7 @@ public class GenericConversionService implements ConfigurableConversionService {
 		@Nullable
 		public GenericConverter getConverter(TypeDescriptor sourceType, TypeDescriptor targetType) {
 			for (GenericConverter converter : this.converters) {
+				// 一旦匹配则直接返回
 				if (!(converter instanceof ConditionalGenericConverter) ||
 						((ConditionalGenericConverter) converter).matches(sourceType, targetType)) {
 					return converter;

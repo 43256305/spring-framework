@@ -123,6 +123,7 @@ import org.springframework.util.StringUtils;
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory
 		implements AutowireCapableBeanFactory {
 
+	// 实例化策略，默认使用CglibSubclassingInstantiationStrategy
 	/** Strategy for creating bean instances. */
 	private InstantiationStrategy instantiationStrategy = new CglibSubclassingInstantiationStrategy();
 

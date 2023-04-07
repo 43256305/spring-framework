@@ -47,6 +47,8 @@ import org.springframework.util.StringValueResolver;
  * @see org.springframework.beans.factory.BeanFactory
  * @see org.springframework.beans.factory.ListableBeanFactory
  * @see ConfigurableListableBeanFactory
+ *
+ * xjh-配置beanFactory接口，就是给beanFactory设置一些属性
  */
 public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, SingletonBeanRegistry {
 
@@ -323,6 +325,8 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	 * @return a (potentially merged) BeanDefinition for the given bean
 	 * @throws NoSuchBeanDefinitionException if there is no bean definition with the given name
 	 * @since 2.5
+	 *
+	 * xjh-获取父bean与子bean合并的bean
 	 */
 	BeanDefinition getMergedBeanDefinition(String beanName) throws NoSuchBeanDefinitionException;
 
@@ -367,6 +371,8 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 	 * @param beanName the name of the bean
 	 * @return the array of dependent bean names, or an empty array if none
 	 * @since 2.5
+	 *
+	 * xjh-获取某个bean依赖的bean
 	 */
 	String[] getDependentBeans(String beanName);
 

@@ -37,6 +37,9 @@ import org.springframework.lang.Nullable;
  * @param <T> the object type
  * @see BeanFactory#getBeanProvider
  * @see org.springframework.beans.factory.annotation.Autowired
+ *
+ * xjh-ObjectProvider用于解决构造器的循环依赖问题，并且ObjectProvider还可以用于注入集合类型的bean。
+ * 例如，如果有多个实现了同一接口的bean，我们可以使用ObjectProvider来注入一个包含所有实现类实例的集合，而不是注入一个单独的实例。
  */
 public interface ObjectProvider<T> extends ObjectFactory<T>, Iterable<T> {
 

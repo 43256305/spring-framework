@@ -35,6 +35,8 @@ import org.springframework.beans.BeansException;
  * @since 1.0.2
  * @param <T> the object type
  * @see FactoryBean
+ *
+ * xjh-获取一个bean，可以返回原对象，或者返回代理对象等
  */
 @FunctionalInterface
 public interface ObjectFactory<T> {

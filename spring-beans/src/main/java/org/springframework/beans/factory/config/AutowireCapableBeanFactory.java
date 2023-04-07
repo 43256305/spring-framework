@@ -76,6 +76,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
+	 *
+	 * xjh-注入方式常量，按名称
 	 */
 	int AUTOWIRE_BY_NAME = 1;
 
@@ -85,6 +87,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @see #createBean
 	 * @see #autowire
 	 * @see #autowireBeanProperties
+	 *
+	 * xjh-注入方式常量，按类型
 	 */
 	int AUTOWIRE_BY_TYPE = 2;
 
@@ -93,6 +97,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * can be satisfied (involves resolving the appropriate constructor).
 	 * @see #createBean
 	 * @see #autowire
+	 *
+	 * xjh-注入方式常量，按构造器
 	 */
 	int AUTOWIRE_CONSTRUCTOR = 3;
 
@@ -147,6 +153,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * use {@link #autowireBeanProperties} for those purposes.
 	 * @param existingBean the existing bean instance
 	 * @throws BeansException if wiring failed
+	 *
+	 * xjh-自动装配bean
 	 */
 	void autowireBean(Object existingBean) throws BeansException;
 
@@ -166,6 +174,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * if there is no bean definition with the given name
 	 * @throws BeansException if the initialization failed
 	 * @see #initializeBean
+	 *
+	 * xjh-对bean做一些额外配置，如调用aware接口
 	 */
 	Object configureBean(Object existingBean, String beanName) throws BeansException;
 
@@ -263,6 +273,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * if there is no bean definition with the given name
 	 * @throws BeansException if applying the property values failed
 	 * @see #autowireBeanProperties
+	 *
+	 * xjh-属性填充
 	 */
 	void applyBeanPropertyValues(Object existingBean, String beanName) throws BeansException;
 
@@ -315,6 +327,8 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * @throws BeansException if any post-processing failed
 	 * @see BeanPostProcessor#postProcessAfterInitialization
 	 * @see #ORIGINAL_INSTANCE_SUFFIX
+	 *
+	 * xjh-初始化（init方法）后的回调
 	 */
 	Object applyBeanPostProcessorsAfterInitialization(Object existingBean, String beanName)
 			throws BeansException;

@@ -53,10 +53,13 @@ public class DefaultDataBinderFactory implements WebDataBinderFactory {
 	public final WebDataBinder createBinder(
 			NativeWebRequest webRequest, @Nullable Object target, String objectName) throws Exception {
 
+		// 这里返回的dataBinder为ExtendedServletRequestDataBinder类型
 		WebDataBinder dataBinder = createBinderInstance(target, objectName, webRequest);
 		if (this.initializer != null) {
+			// 为我们刚刚创建的WebDataBinder设置conversionService、validator等属性
 			this.initializer.initBinder(dataBinder, webRequest);
 		}
+		// 调用@InitBinder方法
 		initBinder(dataBinder, webRequest);
 		return dataBinder;
 	}

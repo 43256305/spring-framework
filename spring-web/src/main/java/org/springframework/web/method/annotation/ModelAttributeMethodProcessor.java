@@ -72,6 +72,8 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * @author Juergen Hoeller
  * @author Sebastien Deleuze
  * @since 3.1
+ *
+ * xjh-解析注解了@ModelAttribute或者没有注解且不是简单类型的参数，子类为ServletModelAttributeMethodProcessor
  */
 public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
 
@@ -154,11 +156,15 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 		if (bindingResult == null) {
 			// Bean property binding and validation;
 			// skipped in case of binding failure on construction.
+			// binderFactory为ServletRequestDataBinderFactory
+			// 这里创建了WebDataBinder，并且设置了一些初始化属性（如conversionService、validator），调用了@InitBinder方法
+			// 所以，有几个参数，就会调用几次@InitBinder方法
 			WebDataBinder binder = binderFactory.createBinder(webRequest, attribute, name);
 			if (binder.getTarget() != null) {
 				if (!mavContainer.isBindingDisabled(name)) {
 					bindRequestParameters(binder, webRequest);
 				}
+				// 校验
 				validateIfApplicable(binder, parameter);
 				if (binder.getBindingResult().hasErrors() && isBindExceptionRequired(binder, parameter)) {
 					throw new BindException(binder.getBindingResult());
@@ -166,6 +172,7 @@ public class ModelAttributeMethodProcessor implements HandlerMethodArgumentResol
 			}
 			// Value type adaptation, also covering java.util.Optional
 			if (!parameter.getParameterType().isInstance(attribute)) {
+				// 参数转换
 				attribute = binder.convertIfNecessary(binder.getTarget(), parameter.getParameterType(), parameter);
 			}
 			bindingResult = binder.getBindingResult();

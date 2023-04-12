@@ -125,6 +125,9 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 
 		//xjh-使用binder转换器转换参数
 		if (binderFactory != null) {
+			// binderFactory为ServletRequestDataBinderFactory
+			// 这里创建了WebDataBinder，并且设置了一些初始化属性（如conversionService、validator），调用了@InitBinder方法
+			// 所以，有几个参数，就会调用几次@InitBinder方法
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
@@ -139,6 +142,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 			}
 		}
 
+		// 参数解析完成后被调用，只有PathVariableMethodArgumentResolver实现了此方法
 		handleResolvedValue(arg, namedValueInfo.name, parameter, mavContainer, webRequest);
 
 		return arg;

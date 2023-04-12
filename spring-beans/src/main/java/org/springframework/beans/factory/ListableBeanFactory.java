@@ -54,6 +54,8 @@ import org.springframework.lang.Nullable;
  * @since 16 April 2001
  * @see HierarchicalBeanFactory
  * @see BeanFactoryUtils
+ *
+ * xjh-提供了枚举bean的能力，如获取所有的beanName、根据类型获取bean，根据注解获取bean等
  */
 public interface ListableBeanFactory extends BeanFactory {
 

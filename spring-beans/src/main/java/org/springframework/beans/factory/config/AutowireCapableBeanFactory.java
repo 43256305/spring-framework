@@ -58,6 +58,8 @@ import org.springframework.lang.Nullable;
  * @see org.springframework.beans.factory.BeanFactoryAware
  * @see org.springframework.beans.factory.config.ConfigurableListableBeanFactory
  * @see org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()
+ *
+ * xjh-重要，提供自动装配的能力，创建能力，同时细粒度地控制了bean的生命周期。
  */
 public interface AutowireCapableBeanFactory extends BeanFactory {
 

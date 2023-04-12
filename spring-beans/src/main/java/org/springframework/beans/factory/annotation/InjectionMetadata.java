@@ -123,6 +123,7 @@ public class InjectionMetadata {
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
+			// @Autowired：遍历我们找到的AutowiredFieldElement与AutowiredMethodElement，对他们逐个实行inject操作，注意，这里会调用这两个类的inject方法，而不是InjectedElement的inject方法
 			for (InjectedElement element : elementsToIterate) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
@@ -177,8 +178,10 @@ public class InjectionMetadata {
 	 */
 	public abstract static class InjectedElement {
 
+		// 要注入的属性或方法
 		protected final Member member;
 
+		// 是否为属性
 		protected final boolean isField;
 
 		@Nullable
@@ -233,11 +236,14 @@ public class InjectionMetadata {
 		protected void inject(Object target, @Nullable String requestingBeanName, @Nullable PropertyValues pvs)
 				throws Throwable {
 
+			// 属性
 			if (this.isField) {
 				Field field = (Field) this.member;
 				ReflectionUtils.makeAccessible(field);
+				// ResourceElement实现了getResourceToInject()方法，找到依赖的bean
 				field.set(target, getResourceToInject(target, requestingBeanName));
 			}
+			// 方法
 			else {
 				if (checkPropertySkipping(pvs)) {
 					return;

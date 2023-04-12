@@ -301,6 +301,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			try {
+				// 合并bd
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
@@ -330,7 +331,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				// Create bean instance.
 				// 创建bean，分为singleton、prototype等类型
 				if (mbd.isSingleton()) {
-					// getSingleton为创建bean之前之后的一些操作（如检查bean是否已经被创建），创建bean的真正逻辑在下面的createBean方法中
+					// getSingleton为创建bean之前之后的一些操作（如从bean中获取缓存，创建完成后将bean放入缓存中），创建bean的真正逻辑在下面的createBean方法中
 					sharedInstance = getSingleton(beanName, () -> {
 						try {
 							return createBean(beanName, mbd, args);
@@ -347,11 +348,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
+				// 如果为Prototype类型
 				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
 						beforePrototypeCreation(beanName);
+						// 直接调用createBean方法，而没有调用getSingleton方法，即没有将创建的bean加入缓存中
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
 					finally {
@@ -394,9 +397,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		}
 
 		// Check if required type matches the type of the actual bean instance.
-		// 检查要求的bean类型与获取的bean的类型是不是一样，不是则抛出异常
+		// 检查要求的bean类型与获取的bean经过convert之后的类型是不是一样，不是则抛出异常
 		if (requiredType != null && !requiredType.isInstance(bean)) {
 			try {
+				// 对我们创建的bean执行convert操作
 				T convertedBean = getTypeConverter().convertIfNecessary(bean, requiredType);
 				if (convertedBean == null) {
 					throw new BeanNotOfRequiredTypeException(name, requiredType, bean.getClass());
@@ -1796,6 +1800,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			Object beanInstance, String name, String beanName, @Nullable RootBeanDefinition mbd) {
 
 		// Don't let calling code try to dereference the factory if the bean isn't a factory.
+		// xjh-如果需要获取的是&开头的bean，则直接返回此bean
 		if (BeanFactoryUtils.isFactoryDereference(name)) {
 			if (beanInstance instanceof NullBean) {
 				return beanInstance;
@@ -1812,10 +1817,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		// Now we have the bean instance, which may be a normal bean or a FactoryBean.
 		// If it's a FactoryBean, we use it to create a bean instance, unless the
 		// caller actually wants a reference to the factory.
+		// 如果此bean不是FactoryBean的实现类，则直接返回此bean
 		if (!(beanInstance instanceof FactoryBean)) {
 			return beanInstance;
 		}
 
+		// 调用getObject方法，返回真正的工厂bean实例
 		Object object = null;
 		if (mbd != null) {
 			mbd.isFactoryBean = true;

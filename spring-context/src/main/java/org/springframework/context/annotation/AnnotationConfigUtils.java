@@ -134,6 +134,7 @@ public abstract class AnnotationConfigUtils {
 	 * @param registry the registry to operate on
 	 */
 	public static void registerAnnotationConfigProcessors(BeanDefinitionRegistry registry) {
+		// 注册类所有注解相关的postProcessor，如CommonAnnotationBeanPostProcessor，AutowiredAnnotationBeanPostProcessor等
 		registerAnnotationConfigProcessors(registry, null);
 	}
 

@@ -79,7 +79,7 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
-	 * xjh-用于bean被初始化之后，属性填充之前，用于自定义属性注入。
+	 * xjh-用于bean被实例化之后，属性填充之前，用于自定义属性注入。
 	 * 在populateBean(beanName, mbd, instanceWrapper)方法中被调用。
 	 * Perform operations after the bean has been instantiated, via a constructor or factory method,
 	 * but before Spring property population (from explicit properties or autowiring) occurs.
@@ -100,6 +100,9 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
+	 * xjh-在propertyValues填充好之后，运用到bean之前的回调。实现类如果实现了postProcessPropertyValues方法，则此方法应该返回null，否则应该返回传入的pvs。
+	 * postProcessPropertyValues方法不推荐使用了，主要是使用此方法来显示对propertyValues运用到bean之前的对propertyValues的一些操作。
+	 * @Autowired、@Value、@Resource就是使用此方法来实现对属性的注入
 	 * Post-process the given property values before the factory applies them
 	 * to the given bean, without any need for property descriptors.
 	 * <p>Implementations should return {@code null} (the default) if they provide a custom
@@ -125,7 +128,8 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 	}
 
 	/**
-	 * xjh-用于对bean属性注入之后，如检查所有Required的属性是否全部注入，如修改一些属性。
+	 * xjh-在propertyValues填充好之后，运用到bean之前的回调。用于检查所有required依赖是否都满足了，或者替换填已经充好的propertyValues。
+	 * 不推荐使用
 	 * Post-process the given property values before the factory applies them
 	 * to the given bean. Allows for checking whether all dependencies have been
 	 * satisfied, for example based on a "Required" annotation on bean property setters.

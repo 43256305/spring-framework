@@ -125,6 +125,7 @@ class ConstructorResolver {
 	public BeanWrapper autowireConstructor(String beanName, RootBeanDefinition mbd,
 			@Nullable Constructor<?>[] chosenCtors, @Nullable Object[] explicitArgs) {
 
+		// xjh-构造beanWrapper
 		BeanWrapperImpl bw = new BeanWrapperImpl();
 		this.beanFactory.initBeanWrapper(bw);
 
@@ -132,9 +133,11 @@ class ConstructorResolver {
 		ArgumentsHolder argsHolderToUse = null;
 		Object[] argsToUse = null;
 
+		// 如果传入的构造器参数不为空，则使用传入参数
 		if (explicitArgs != null) {
 			argsToUse = explicitArgs;
 		}
+		// 为空，则解析参数
 		else {
 			Object[] argsToResolve = null;
 			synchronized (mbd.constructorArgumentLock) {

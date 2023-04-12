@@ -96,6 +96,7 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * @param basePackages the packages to scan for component classes
 	 */
 	public AnnotationConfigApplicationContext(String... basePackages) {
+		// xjh-新建注解相关的扫描类，并注册注解相关的postProcessor
 		this();
 		scan(basePackages);
 		refresh();

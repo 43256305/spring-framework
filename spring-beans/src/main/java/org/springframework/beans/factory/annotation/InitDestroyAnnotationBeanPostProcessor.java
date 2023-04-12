@@ -152,8 +152,10 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+		// 找到init、destroy相关的元数据
 		LifecycleMetadata metadata = findLifecycleMetadata(bean.getClass());
 		try {
+			// xjh-调用@PostConstruct指定的init方法：LifecycleMetadata::invokeInitMethods->LifecycleElement::invoke->Method.invoke
 			metadata.invokeInitMethods(bean, beanName);
 		}
 		catch (InvocationTargetException ex) {
@@ -199,6 +201,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 	private LifecycleMetadata findLifecycleMetadata(Class<?> clazz) {
 		if (this.lifecycleMetadataCache == null) {
 			// Happens after deserialization, during destruction...
+			// xjh-构造生命周期元数据
 			return buildLifecycleMetadata(clazz);
 		}
 		// Quick check on the concurrent map first, with minimal locking.
@@ -217,6 +220,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 	}
 
 	private LifecycleMetadata buildLifecycleMetadata(final Class<?> clazz) {
+		// xjh-如果没有注解生命周期方法
 		if (!AnnotationUtils.isCandidateClass(clazz, Arrays.asList(this.initAnnotationType, this.destroyAnnotationType))) {
 			return this.emptyLifecycleMetadata;
 		}
@@ -229,7 +233,9 @@ public class InitDestroyAnnotationBeanPostProcessor
 			final List<LifecycleElement> currInitMethods = new ArrayList<>();
 			final List<LifecycleElement> currDestroyMethods = new ArrayList<>();
 
+			// 遍历所有方法
 			ReflectionUtils.doWithLocalMethods(targetClass, method -> {
+				// 如果存在init方法
 				if (this.initAnnotationType != null && method.isAnnotationPresent(this.initAnnotationType)) {
 					LifecycleElement element = new LifecycleElement(method);
 					currInitMethods.add(element);
@@ -237,6 +243,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 						logger.trace("Found init method on class [" + clazz.getName() + "]: " + method);
 					}
 				}
+				// 如果存在destroy方法
 				if (this.destroyAnnotationType != null && method.isAnnotationPresent(this.destroyAnnotationType)) {
 					currDestroyMethods.add(new LifecycleElement(method));
 					if (logger.isTraceEnabled()) {
@@ -251,6 +258,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 		}
 		while (targetClass != null && targetClass != Object.class);
 
+		// 将查询到的init、destroy方法list放入LifecycleMetadata返回
 		return (initMethods.isEmpty() && destroyMethods.isEmpty() ? this.emptyLifecycleMetadata :
 				new LifecycleMetadata(clazz, initMethods, destroyMethods));
 	}
@@ -326,10 +334,12 @@ public class InitDestroyAnnotationBeanPostProcessor
 			Collection<LifecycleElement> initMethodsToIterate =
 					(checkedInitMethods != null ? checkedInitMethods : this.initMethods);
 			if (!initMethodsToIterate.isEmpty()) {
+				// xjh-调用所有发现的init方法
 				for (LifecycleElement element : initMethodsToIterate) {
 					if (logger.isTraceEnabled()) {
 						logger.trace("Invoking init method on bean '" + beanName + "': " + element.getMethod());
 					}
+					// 调用init方法
 					element.invoke(target);
 				}
 			}
@@ -386,6 +396,7 @@ public class InitDestroyAnnotationBeanPostProcessor
 
 		public void invoke(Object target) throws Throwable {
 			ReflectionUtils.makeAccessible(this.method);
+			// xjh-调用生命周期方法
 			this.method.invoke(target, (Object[]) null);
 		}
 

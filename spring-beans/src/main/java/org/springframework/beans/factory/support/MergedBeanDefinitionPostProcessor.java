@@ -34,6 +34,9 @@ import org.springframework.beans.factory.config.BeanPostProcessor;
  * @author Juergen Hoeller
  * @since 2.5
  * @see org.springframework.beans.factory.config.ConfigurableBeanFactory#getMergedBeanDefinition
+ *
+ * xjh-实例化bean之后，用于去修改合并之后的RootBeanDefinition。
+ * 用于去缓存一些元数据。实现类如CommonAnnotationBeanPostProcessor、AutowiredAnnotationBeanPostProcessor，缓存了@Autowired、@Resource等注解的元数据
  */
 public interface MergedBeanDefinitionPostProcessor extends BeanPostProcessor {
 

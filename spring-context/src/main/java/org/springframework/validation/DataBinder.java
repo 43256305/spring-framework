@@ -690,6 +690,7 @@ public class DataBinder implements PropertyEditorRegistry, TypeConverter {
 	public <T> T convertIfNecessary(@Nullable Object value, @Nullable Class<T> requiredType,
 			@Nullable MethodParameter methodParam) throws TypeMismatchException {
 
+		// xjh-参数转换
 		return getTypeConverter().convertIfNecessary(value, requiredType, methodParam);
 	}
 

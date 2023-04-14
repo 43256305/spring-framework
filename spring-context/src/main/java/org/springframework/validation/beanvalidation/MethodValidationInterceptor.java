@@ -56,6 +56,8 @@ import org.springframework.validation.annotation.Validated;
  * @since 3.1
  * @see MethodValidationPostProcessor
  * @see javax.validation.executable.ExecutableValidator
+ *
+ * xjh-提供方法级的参数校验，校验传入参数与返回值
  */
 public class MethodValidationInterceptor implements MethodInterceptor {
 

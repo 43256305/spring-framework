@@ -115,17 +115,25 @@ class TypeConverterDelegate {
 	public <T> T convertIfNecessary(@Nullable String propertyName, @Nullable Object oldValue, @Nullable Object newValue,
 			@Nullable Class<T> requiredType, @Nullable TypeDescriptor typeDescriptor) throws IllegalArgumentException {
 
+		// 通过request到这里时，oldValue总是为空，newValue为从request中获取的参数，总是为String类型
+
+		// xjh-获取自定义的PropertyEditor
 		// Custom editor for this type?
 		PropertyEditor editor = this.propertyEditorRegistry.findCustomEditor(requiredType, propertyName);
 
 		ConversionFailedException conversionAttemptEx = null;
 
+		// 获取ConversionService，这里一定会获取到DefaultFormattingConversionService
+		// 此类的父类GenericConversionService持有的converters中包含了很多默认、自定义的Converter，这些Converter是通过DefaultConversionService注册的
 		// No custom editor but custom ConversionService specified?
 		ConversionService conversionService = this.propertyEditorRegistry.getConversionService();
+		// 如果没有自定义的editor，则使用ConversionService。即优先使用自定义的editor，一旦自定义了editor，则不会使用ConversionService
 		if (editor == null && conversionService != null && newValue != null && typeDescriptor != null) {
 			TypeDescriptor sourceTypeDesc = TypeDescriptor.forObject(newValue);
+			// 如果可以转换
 			if (conversionService.canConvert(sourceTypeDesc, typeDescriptor)) {
 				try {
+					// 使用自定义的conversionService执行参数转换，并直接返回
 					return (T) conversionService.convert(newValue, sourceTypeDesc, typeDescriptor);
 				}
 				catch (ConversionFailedException ex) {
@@ -135,35 +143,46 @@ class TypeConverterDelegate {
 			}
 		}
 
+		// 将传入参数作为convertedValue
 		Object convertedValue = newValue;
 
+		// editor不为空，或者当前获取的参数不是需要的类型
 		// Value not of required type?
 		if (editor != null || (requiredType != null && !ClassUtils.isAssignableValue(requiredType, convertedValue))) {
+			// 如果需要的值是集合类型，并且当前参数是String类型
 			if (typeDescriptor != null && requiredType != null && Collection.class.isAssignableFrom(requiredType) &&
 					convertedValue instanceof String) {
 				TypeDescriptor elementTypeDesc = typeDescriptor.getElementTypeDescriptor();
 				if (elementTypeDesc != null) {
 					Class<?> elementType = elementTypeDesc.getType();
 					if (Class.class == elementType || Enum.class.isAssignableFrom(elementType)) {
+						// 根据逗号分割字符串
 						convertedValue = StringUtils.commaDelimitedListToStringArray((String) convertedValue);
 					}
 				}
 			}
+			// 如果editor为空
 			if (editor == null) {
+				// 找到默认的editor，详情查看PropertyEditorRegistrySupport类，注册了一些默认的editor
 				editor = findDefaultEditor(requiredType);
 			}
+			// 使用找到的editor执行转换操作（这里将会调用我们自定义的editor执行转换）
 			convertedValue = doConvertValue(oldValue, convertedValue, requiredType, editor);
 		}
 
 		boolean standardConversion = false;
 
+		// 根据参数与要求类型使用不同的转换方法
 		if (requiredType != null) {
 			// Try to apply some standard type conversion rules if appropriate.
 
+			// 如果参数不为空
 			if (convertedValue != null) {
+				// 如果要求的类型是Object，则直接返回
 				if (Object.class == requiredType) {
 					return (T) convertedValue;
 				}
+				// 如果要求的类型是数组
 				else if (requiredType.isArray()) {
 					// Array required -> apply appropriate conversion of elements.
 					if (convertedValue instanceof String && Enum.class.isAssignableFrom(requiredType.getComponentType())) {
@@ -171,12 +190,14 @@ class TypeConverterDelegate {
 					}
 					return (T) convertToTypedArray(convertedValue, propertyName, requiredType.getComponentType());
 				}
+				// 如果参数（可能被editor转换过，也可能没有）属于集合类型
 				else if (convertedValue instanceof Collection) {
 					// Convert elements to target type, if determined.
 					convertedValue = convertToTypedCollection(
 							(Collection<?>) convertedValue, propertyName, requiredType, typeDescriptor);
 					standardConversion = true;
 				}
+				// 如果参数属于map类型
 				else if (convertedValue instanceof Map) {
 					// Convert keys and values to respective target type, if determined.
 					convertedValue = convertToTypedMap(
@@ -223,6 +244,7 @@ class TypeConverterDelegate {
 					standardConversion = true;
 				}
 			}
+			// 如果convertedValue为空
 			else {
 				// convertedValue == null
 				if (requiredType == Optional.class) {

@@ -130,6 +130,7 @@ public abstract class AbstractNamedValueMethodArgumentResolver implements Handle
 			// 所以，有几个参数，就会调用几次@InitBinder方法
 			WebDataBinder binder = binderFactory.createBinder(webRequest, null, namedValueInfo.name);
 			try {
+				// 参数转换
 				arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
 			}
 			catch (ConversionNotSupportedException ex) {

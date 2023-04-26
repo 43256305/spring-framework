@@ -134,7 +134,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 			beanFactory.setSerializationId(getId());
 			//xjh-设置自定义BeanFactory相关自定义选项，BeanDefinition重写，循环依赖
 			customizeBeanFactory(beanFactory);
-			//xjh-加载BeanDefinition
+			//xjh-加载BeanDefinition。根据当前的ApplicationContext的实现类来加载bd，如果当前为XmlApplicationContext则从xml中加载，如果当前为AnnotationConfigWebApplicationContext则扫描配置的basePackage与componentClasses中加载。
 			loadBeanDefinitions(beanFactory);
 			synchronized (this.beanFactoryMonitor) {
 				this.beanFactory = beanFactory;

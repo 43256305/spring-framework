@@ -144,8 +144,10 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 */
 	@Override
 	public boolean isAutowireCandidate(BeanDefinitionHolder bdHolder, DependencyDescriptor descriptor) {
+		// 先经过父类匹配，看是否允许依赖注入，泛型匹配
 		boolean match = super.isAutowireCandidate(bdHolder, descriptor);
 		if (match) {
+			// 检查@Qualifier
 			match = checkQualifiers(bdHolder, descriptor.getAnnotations());
 			if (match) {
 				MethodParameter methodParam = descriptor.getMethodParameter();
@@ -164,6 +166,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 	 * Match the given qualifier annotations against the candidate bean definition.
 	 */
 	protected boolean checkQualifiers(BeanDefinitionHolder bdHolder, Annotation[] annotationsToSearch) {
+		// 不存在注解，则@Qualifier注解检查返回true
 		if (ObjectUtils.isEmpty(annotationsToSearch)) {
 			return true;
 		}
@@ -172,16 +175,22 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			Class<? extends Annotation> type = annotation.annotationType();
 			boolean checkMeta = true;
 			boolean fallbackToMeta = false;
+			// 查看是否为@Qualifier注解
 			if (isQualifier(type)) {
+				// 检查当前beanName是否匹配@Qualifier注解的value
 				if (!checkQualifier(bdHolder, annotation, typeConverter)) {
+					// 不匹配，需要校验元注解
 					fallbackToMeta = true;
 				}
 				else {
+					// 匹配，则无需校验元注解
 					checkMeta = false;
 				}
 			}
+			// 匹配失败，或者不存在@Qualifier注解，则需要校验元注解
 			if (checkMeta) {
 				boolean foundMeta = false;
+				// 遍历所有元注解，如果某个注解为@Qualifier，则查看是否匹配
 				for (Annotation metaAnn : type.getAnnotations()) {
 					Class<? extends Annotation> metaType = metaAnn.annotationType();
 					if (isQualifier(metaType)) {
@@ -262,14 +271,19 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			}
 		}
 
+		// 获取注解属性
 		Map<String, Object> attributes = AnnotationUtils.getAnnotationAttributes(annotation);
 		if (attributes.isEmpty() && qualifier == null) {
 			// If no attributes, the qualifier must be present
 			return false;
 		}
+		// 遍历注解属性
 		for (Map.Entry<String, Object> entry : attributes.entrySet()) {
+			// 属性名（注解的value属性）
 			String attributeName = entry.getKey();
+			// 属性期望值（注解value的值）
 			Object expectedValue = entry.getValue();
+			// 属性实际值
 			Object actualValue = null;
 			// Check qualifier first
 			if (qualifier != null) {
@@ -279,6 +293,7 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 				// Fall back on bean definition attribute
 				actualValue = bd.getAttribute(attributeName);
 			}
+			// 如果value的值与bdHolder中持有的beanName相同，则遍历下一个属性
 			if (actualValue == null && attributeName.equals(AutowireCandidateQualifier.VALUE_KEY) &&
 					expectedValue instanceof String && bdHolder.matchesName((String) expectedValue)) {
 				// Fall back on bean name (or alias) match
@@ -291,10 +306,12 @@ public class QualifierAnnotationAutowireCandidateResolver extends GenericTypeAwa
 			if (actualValue != null) {
 				actualValue = typeConverter.convertIfNecessary(actualValue, expectedValue.getClass());
 			}
+			// 期望值与实际值不同，则返回false
 			if (!expectedValue.equals(actualValue)) {
 				return false;
 			}
 		}
+		// @Qualifier所有属性都被遍历，没有不匹配的，则返回true
 		return true;
 	}
 

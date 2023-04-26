@@ -123,11 +123,12 @@ public class InjectionMetadata {
 		Collection<InjectedElement> elementsToIterate =
 				(checkedElements != null ? checkedElements : this.injectedElements);
 		if (!elementsToIterate.isEmpty()) {
-			// @Autowired：遍历我们找到的AutowiredFieldElement与AutowiredMethodElement，对他们逐个实行inject操作，注意，这里会调用这两个类的inject方法，而不是InjectedElement的inject方法
+			// @Autowired：遍历我们找到的AutowiredFieldElement与AutowiredMethodElement（@Resource对应ResourceElement），对他们逐个实行inject操作，注意，这里会调用这两个类的inject方法，而不是InjectedElement的inject方法
 			for (InjectedElement element : elementsToIterate) {
 				if (logger.isTraceEnabled()) {
 					logger.trace("Processing injected element of bean '" + beanName + "': " + element);
 				}
+				// target为当前正在实例化的bean，beanName为当前正在实例化的beanName，而不是依赖的beanName。
 				element.inject(target, beanName, pvs);
 			}
 		}

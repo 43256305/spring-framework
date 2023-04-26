@@ -15,6 +15,7 @@ public class AnnotationTest {
 	@Test
 	public void testPostConstruct(){
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext("com.example.study.annotation");
+		context.close();
 	}
 
 }

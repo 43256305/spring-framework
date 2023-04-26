@@ -414,7 +414,8 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 		// 寻找此类注解相关的metadata
 		InjectionMetadata metadata = findAutowiringMetadata(beanName, bean.getClass(), pvs);
 		try {
-			// 注入此bean中所有@Autowired依赖的bean
+			// 注入此bean中所有@Autowired、@Inject依赖的bean。@Value注入的值。
+			// 注意，bean为当前正在实例化的bean，beanName为当前正在实例化的beanName，而不是依赖的beanName
 			metadata.inject(bean, beanName, pvs);
 		}
 		catch (BeanCreationException ex) {
@@ -493,11 +494,11 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 
 			// xjh-遍历所有字段
 			ReflectionUtils.doWithLocalFields(targetClass, field -> {
-				// 找到此字段的注解
+				// 找到此字段的@Autowired、@Value、@Inject注解
 				MergedAnnotation<?> ann = findAutowiredAnnotation(field);
-				// 如果没有注解，就去找下一个字段
+				// 如果找到了注解
 				if (ann != null) {
-					// @Autowired不支持静态字段
+					// 不支持静态字段
 					if (Modifier.isStatic(field.getModifiers())) {
 						if (logger.isInfoEnabled()) {
 							logger.info("Autowired annotation is not supported on static fields: " + field);
@@ -664,6 +665,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				value = resolvedCachedArgument(beanName, this.cachedFieldValue);
 			}
 			else {
+				// 注意，这里构造的始终是DependencyDescriptor，而不是ShortcutDependencyDescriptor
 				DependencyDescriptor desc = new DependencyDescriptor(field, this.required);
 				desc.setContainingClass(bean.getClass());
 				Set<String> autowiredBeanNames = new LinkedHashSet<>(1);
@@ -671,6 +673,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 				TypeConverter typeConverter = beanFactory.getTypeConverter();
 				try {
 					// 解析依赖，如果依赖的bean 还未实例化，就实例化，因此此处会有循环依赖的问题
+					// 根据类型解析依赖。beanName为当前正在实例化的beanName，而不是依赖的beanName。autowiredBeanNames为空列表。所以这里并没有传入我们依赖beanName
 					value = beanFactory.resolveDependency(desc, beanName, autowiredBeanNames, typeConverter);
 				}
 				catch (BeansException ex) {
@@ -686,6 +689,7 @@ public class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBean
 								String autowiredBeanName = autowiredBeanNames.iterator().next();
 								if (beanFactory.containsBean(autowiredBeanName) &&
 										beanFactory.isTypeMatch(autowiredBeanName, field.getType())) {
+									// 找到了依赖的bean之后，构造ShortcutDependencyDescriptor，方面后面依赖此bean时直接返回
 									this.cachedFieldValue = new ShortcutDependencyDescriptor(
 											desc, autowiredBeanName, field.getType());
 								}

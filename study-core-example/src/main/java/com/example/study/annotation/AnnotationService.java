@@ -3,6 +3,7 @@ package com.example.study.annotation;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * @author ：xjh
@@ -18,5 +19,10 @@ public class AnnotationService {
     public void init(){
         System.out.println("init method");
     }
+
+	@PreDestroy
+	public void destroy(){
+		System.out.println("destroy method");
+	}
 
 }
